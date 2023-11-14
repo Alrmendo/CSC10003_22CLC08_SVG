@@ -28,3 +28,29 @@ Color::Color(const string &named_color)
     else if (named_color == "blue")
         Color(255, 0, 0, 255);
 }
+
+Color::Color(const string &opacity, const string &rgb)
+{
+    if (!opacity.empty())
+        this->alpha = 255 * stof(opacity);
+    else
+        this->alpha = 255;
+    if (!rgb.empty())
+    {
+        stringstream ss(rgb);
+        string vessel;
+        getline(ss, vessel, '(');
+        getline(ss, vessel, ',');
+        this->red = stoi(vessel);
+        getline(ss, vessel, ',');
+        this->green = stoi(vessel);
+        getline(ss, vessel, ')');
+        this->blue = stoi(vessel);
+    }
+    else
+    {
+        this->red = 0;
+        this->green = 0;
+        this->blue = 0;
+    }
+}

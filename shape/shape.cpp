@@ -11,6 +11,7 @@ Shape::Shape(Entity entity)
         this->stroke_width = stof(entity.attributes["stroke-width"]);
     else
         this->stroke_width = 0;
+
     this->stroke_color = Color(entity.attributes["stroke-opacity"], entity.attributes["stroke"]);
     this->fill_color = Color(entity.attributes["fill-opacity"], entity.attributes["fill"]);
 }
@@ -28,7 +29,8 @@ void Rect::render_rect(Gdiplus::Graphics &graphics)
     Gdiplus::SolidBrush fill_pen(Gdiplus::Color(this->fill_color.alpha, this->fill_color.red, this->fill_color.green, this->fill_color.blue));
     Gdiplus::RectF shape(this->x, this->y, this->width, this->height);
     graphics.FillRectangle(&fill_pen, shape);
-    graphics.DrawRectangle(&stroke_pen, shape);
+    if (this->stroke_width != 0)
+        graphics.DrawRectangle(&stroke_pen, shape);
 }
 
 Text::Text(Entity entity) : Shape(entity)
@@ -36,12 +38,17 @@ Text::Text(Entity entity) : Shape(entity)
     this->x = stof(entity.attributes["x"]);
     this->y = stof(entity.attributes["y"]);
     this->font_size = stoi(entity.attributes["font-size"]);
+    if (!this->font_family.empty())
+        this->font_family = entity.attributes["font-family"];
+    else
+        this->font_family = "Times New Roman";
     this->content = entity.content;
 }
 void Text::render_text(Gdiplus::Graphics &graphics)
 {
     Gdiplus::SolidBrush fill_pen(Gdiplus::Color(this->fill_color.alpha, this->fill_color.red, this->fill_color.green, this->fill_color.blue));
-    Gdiplus::FontFamily font_family(L"Times New Roman");
+    wstring wide_font_family(this->font_family.begin(), this->font_family.end());
+    Gdiplus::FontFamily font_family(wide_font_family.c_str());
     Gdiplus::Font font(&font_family, this->font_size, Gdiplus::FontStyleRegular, Gdiplus::UnitPixel);
     Gdiplus::PointF point_f(this->x, this->y - this->font_size);
     wstring wide_content(this->content.begin(), this->content.end());
@@ -61,7 +68,8 @@ void Elip::render_ellipse(Gdiplus::Graphics &graphics)
     Gdiplus::SolidBrush fill_pen(Gdiplus::Color(this->fill_color.alpha, this->fill_color.red, this->fill_color.green, this->fill_color.blue));
     Gdiplus::RectF shape(this->cx - this->rx, this->cy - this->ry, this->rx * 2, this->ry * 2);
     graphics.FillEllipse(&fill_pen, shape);
-    graphics.DrawEllipse(&stroke_pen, shape);
+    if (this->stroke_width != 0)
+        graphics.DrawEllipse(&stroke_pen, shape);
 }
 
 Circle::Circle(Entity entity) : Shape(entity)
@@ -76,7 +84,8 @@ void Circle::render_circle(Gdiplus::Graphics &graphics)
     Gdiplus::SolidBrush fill_pen(Gdiplus::Color(this->fill_color.alpha, this->fill_color.red, this->fill_color.green, this->fill_color.blue));
     Gdiplus::RectF shape(this->cx - this->r, this->cy - this->r, this->r * 2, this->r * 2);
     graphics.FillEllipse(&fill_pen, shape);
-    graphics.DrawEllipse(&stroke_pen, shape);
+    if (this->stroke_width != 0)
+        graphics.DrawEllipse(&stroke_pen, shape);
 }
 
 Line::Line(Entity entity) : Shape(entity)

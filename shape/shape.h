@@ -29,7 +29,7 @@ class Text : public Shape
 public:
     float x, y;
     int font_size;
-    string content;
+    string content, font_family;
     Text();
     Text(Entity);
     void render_text(Gdiplus::Graphics &);
@@ -78,5 +78,15 @@ public:
     Plygon();
     Plygon(Entity);
     void render_polygon(Gdiplus::Graphics &);
+};
+
+class Path : public Shape
+{
+public:
+    vector<string> command = {"M", "L", "H", "V", "C", "S", "Q", "T", "A", "Z"};
+    string path_data;
+    Path();
+    Path(Entity);
+    void render_path(Gdiplus::Graphics &);
 };
 #endif

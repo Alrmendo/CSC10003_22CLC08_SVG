@@ -1,13 +1,12 @@
 #include "main.h"
-double zoom_scale = 1;
-Gdiplus::PointF pan_offset(0, 0);
 
 VOID render_file(HDC &hdc, const vector<Entity> &main_data)
 {
     Gdiplus::Graphics graphics(hdc);
     graphics.Clear(Gdiplus::Color(255, 255, 255, 255));
     graphics.ScaleTransform(zoom_scale, zoom_scale);
-    graphics.TranslateTransform(pan_offset.X, pan_offset.Y);
+    graphics.TranslateTransform(scroll_offset.X + rotate_offset.X, scroll_offset.Y + rotate_offset.Y);
+    graphics.RotateTransform(rotation_angle);
     graphics.SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias);
 
     for (const auto &entity : main_data)
@@ -54,8 +53,6 @@ LRESULT CALLBACK HandleMessage(HWND window, UINT message, WPARAM w_param, LPARAM
 {
     HDC hdc;
     PAINTSTRUCT ps;
-    static string file_name = "images/sample.svg";
-    static vector<Entity> main_data;
 
     switch (message)
     {
@@ -81,31 +78,84 @@ LRESULT CALLBACK HandleMessage(HWND window, UINT message, WPARAM w_param, LPARAM
     case WM_MOUSEWHEEL:
     {
         if (GET_WHEEL_DELTA_WPARAM(w_param) > 0)
-            zoom_scale += 0.2;
+            zoom_scale *= 1.1;
         else
-            zoom_scale -= 0.2;
+            zoom_scale *= 0.9;
         InvalidateRect(window, NULL, TRUE);
         return 0;
     }
     case WM_KEYDOWN:
         if (w_param == 'A' || w_param == 'a')
         {
-            pan_offset.X += 20;
+            scroll_offset.X += 24 / zoom_scale;
             InvalidateRect(window, NULL, TRUE);
         }
         else if (w_param == 'D' || w_param == 'd')
         {
-            pan_offset.X -= 20;
+            scroll_offset.X -= 24 / zoom_scale;
             InvalidateRect(window, NULL, TRUE);
         }
         else if (w_param == 'W' || w_param == 'w')
         {
-            pan_offset.Y += 20;
+            scroll_offset.Y += 24 / zoom_scale;
             InvalidateRect(window, NULL, TRUE);
         }
         else if (w_param == 'S' || w_param == 's')
         {
-            pan_offset.Y -= 20;
+            scroll_offset.Y -= 24 / zoom_scale;
+            InvalidateRect(window, NULL, TRUE);
+        }
+        else if (w_param == 'R' || w_param == 'r')
+        {
+            scroll_offset.X = 0;
+            scroll_offset.Y = 0;
+            zoom_scale = 1;
+            rotation_angle = 0;
+            rotate_offset.X = 0;
+            rotate_offset.Y = 0;
+            InvalidateRect(window, NULL, TRUE);
+        }
+
+        else if (w_param == 'Q' || w_param == 'q' || w_param == 'E' || w_param == 'e')
+        {
+            RECT window_rect;
+            GetClientRect(window, &window_rect);
+            Gdiplus::PointF window_size(static_cast<float>(window_rect.right), static_cast<float>(window_rect.bottom));
+
+            if (w_param == 'E' || w_param == 'e')
+                rotation_count += 1;
+            else if (w_param == 'Q' || w_param == 'q')
+                rotation_count -= 1;
+
+            if (rotation_count >= max_rotations)
+                rotation_count = 0;
+            if (rotation_count < 0)
+                rotation_count = max_rotations - 1;
+
+            if (rotation_count == 0)
+            {
+                rotation_angle = 0;
+                rotate_offset.X = 0;
+                rotate_offset.Y = 0;
+            }
+            else if (rotation_count == 1)
+            {
+                rotation_angle = 90;
+                rotate_offset.X = window_size.X;
+                rotate_offset.Y = 0;
+            }
+            else if (rotation_count == 2)
+            {
+                rotation_angle = 180;
+                rotate_offset.X = window_size.X;
+                rotate_offset.Y = window_size.Y;
+            }
+            else if (rotation_count == 3)
+            {
+                rotation_angle = 270;
+                rotate_offset.X = 0;
+                rotate_offset.Y = window_size.Y;
+            }
             InvalidateRect(window, NULL, TRUE);
         }
 

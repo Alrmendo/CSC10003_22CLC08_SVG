@@ -1,0 +1,1 @@
+g++ -mwindows reader/*.cpp shape/*.cpp *.cpp -lgdiplus; ./a.exe

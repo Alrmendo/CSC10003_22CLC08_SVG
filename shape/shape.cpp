@@ -1,4 +1,5 @@
 #include "shape.h"
+using namespace Shapes;
 Shape::Shape()
 {
     this->stroke_width = 0;
@@ -16,14 +17,14 @@ Shape::Shape(Entity entity)
     this->fill_color = Color(entity.attributes["fill-opacity"], entity.attributes["fill"]);
 }
 
-Rect::Rect(Entity entity) : Shape(entity)
+Rectangle::Rectangle(Entity entity) : Shape(entity)
 {
     this->x = stof(entity.attributes["x"]);
     this->y = stof(entity.attributes["y"]);
     this->width = stof(entity.attributes["width"]);
     this->height = stof(entity.attributes["height"]);
 }
-void Rect::render_rect(Gdiplus::Graphics &graphics)
+void Rectangle::render_rect(Gdiplus::Graphics &graphics)
 {
     Gdiplus::Pen stroke_pen(Gdiplus::Color(this->stroke_color.alpha, this->stroke_color.red, this->stroke_color.green, this->stroke_color.blue), this->stroke_width);
     Gdiplus::SolidBrush fill_pen(Gdiplus::Color(this->fill_color.alpha, this->fill_color.red, this->fill_color.green, this->fill_color.blue));
@@ -55,14 +56,14 @@ void Text::render_text(Gdiplus::Graphics &graphics)
     graphics.DrawString(wide_content.c_str(), -1, &font, point_f, &fill_pen);
 }
 
-Elip::Elip(Entity entity) : Shape(entity)
+Ellipse::Ellipse(Entity entity) : Shape(entity)
 {
     this->cx = stof(entity.attributes["cx"]);
     this->cy = stof(entity.attributes["cy"]);
     this->rx = stof(entity.attributes["rx"]);
     this->ry = stof(entity.attributes["ry"]);
 }
-void Elip::render_ellipse(Gdiplus::Graphics &graphics)
+void Ellipse::render_ellipse(Gdiplus::Graphics &graphics)
 {
     Gdiplus::Pen stroke_pen(Gdiplus::Color(this->stroke_color.alpha, this->stroke_color.red, this->stroke_color.green, this->stroke_color.blue), this->stroke_width);
     Gdiplus::SolidBrush fill_pen(Gdiplus::Color(this->fill_color.alpha, this->fill_color.red, this->fill_color.green, this->fill_color.blue));
@@ -101,7 +102,7 @@ void Line::render_line(Gdiplus::Graphics &graphics)
     graphics.DrawLine(&stroke_pen, this->x1, this->y1, this->x2, this->y2);
 }
 
-Plyline::Plyline(Entity entity) : Shape(entity)
+Polyline::Polyline(Entity entity) : Shape(entity)
 {
     stringstream ss(entity.attributes["points"]);
     string point;
@@ -117,7 +118,7 @@ Plyline::Plyline(Entity entity) : Shape(entity)
         }
     }
 }
-void Plyline::render_polyline(Gdiplus::Graphics &graphics)
+void Polyline::render_polyline(Gdiplus::Graphics &graphics)
 {
     Gdiplus::Pen stroke_pen(Gdiplus::Color(this->stroke_color.alpha, this->stroke_color.red, this->stroke_color.green, this->stroke_color.blue), this->stroke_width);
     Gdiplus::SolidBrush fill_pen(Gdiplus::Color(this->fill_color.alpha, this->fill_color.red, this->fill_color.green, this->fill_color.blue));
@@ -129,7 +130,7 @@ void Plyline::render_polyline(Gdiplus::Graphics &graphics)
         graphics.DrawPath(&stroke_pen, &path);
 }
 
-Plygon::Plygon(Entity entity) : Shape(entity)
+Polygon::Polygon(Entity entity) : Shape(entity)
 {
     stringstream ss(entity.attributes["points"]);
     string point;
@@ -145,7 +146,7 @@ Plygon::Plygon(Entity entity) : Shape(entity)
         }
     }
 }
-void Plygon::render_polygon(Gdiplus::Graphics &graphics)
+void Polygon::render_polygon(Gdiplus::Graphics &graphics)
 {
     Gdiplus::Pen stroke_pen(Gdiplus::Color(this->stroke_color.alpha, this->stroke_color.red, this->stroke_color.green, this->stroke_color.blue), this->stroke_width);
     Gdiplus::SolidBrush fill_pen(Gdiplus::Color(this->fill_color.alpha, this->fill_color.red, this->fill_color.green, this->fill_color.blue));

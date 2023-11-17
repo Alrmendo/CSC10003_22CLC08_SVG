@@ -3,7 +3,6 @@
 VOID render_file(HDC &hdc, const vector<Entity> &main_data)
 {
     Gdiplus::Graphics graphics(hdc);
-    graphics.Clear(Gdiplus::Color(255, 255, 255, 255));
     graphics.ScaleTransform(zoom_scale, zoom_scale);
     graphics.TranslateTransform(scroll_offset.X + rotate_offset.X, scroll_offset.Y + rotate_offset.Y);
     graphics.RotateTransform(rotation_angle);
@@ -13,37 +12,37 @@ VOID render_file(HDC &hdc, const vector<Entity> &main_data)
     {
         if (entity.entity_type == "rect")
         {
-            Rect rect(entity);
+            Shapes::Rectangle rect(entity);
             rect.render_rect(graphics);
         }
         else if (entity.entity_type == "text")
         {
-            Text text(entity);
+            Shapes::Text text(entity);
             text.render_text(graphics);
         }
         else if (entity.entity_type == "circle")
         {
-            Circle circle(entity);
+            Shapes::Circle circle(entity);
             circle.render_circle(graphics);
         }
         else if (entity.entity_type == "polyline")
         {
-            Plyline polyline(entity);
+            Shapes::Polyline polyline(entity);
             polyline.render_polyline(graphics);
         }
         else if (entity.entity_type == "ellipse")
         {
-            Elip elip(entity);
+            Shapes::Ellipse elip(entity);
             elip.render_ellipse(graphics);
         }
         else if (entity.entity_type == "line")
         {
-            Line line(entity);
+            Shapes::Line line(entity);
             line.render_line(graphics);
         }
         else if (entity.entity_type == "polygon")
         {
-            Plygon polygon(entity);
+            Shapes::Polygon polygon(entity);
             polygon.render_polygon(graphics);
         }
     }
@@ -182,7 +181,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, PSTR, INT iCmdShow)
     window_class.hInstance = hInstance;
     window_class.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
     window_class.hCursor = LoadCursor(nullptr, IDC_ARROW);
-    window_class.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
+    window_class.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
     window_class.lpszMenuName = nullptr;
     window_class.lpszClassName = TEXT("GettingStarted");
 

@@ -14,5 +14,5 @@ vector<Entity> main_data;
 
 VOID render_file(HDC &, const vector<Entity> &);
 LRESULT CALLBACK HandleMessage(HWND, UINT, WPARAM, LPARAM);
-int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, INT);
+int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, INT);
 #endif

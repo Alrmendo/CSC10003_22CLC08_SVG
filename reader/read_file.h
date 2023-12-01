@@ -30,4 +30,9 @@ public:
     vector<Entity> get_data();
     void print_data();
 };
+
+string to_lower(const string &input);
+string replace_comma_with_space(const string &input);
+string add_space_between_char_and_number(const string &input);
+string format_text(const string &input);
 #endif

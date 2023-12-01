@@ -6,14 +6,25 @@
 #include "../reader/read_file.h"
 namespace Shapes
 {
+    struct Transform
+    {
+        string type;
+        vector<float> values;
+    };
+
     class Shape
     {
-    public:
-        float stroke_width;
-        Color stroke_color;
+    protected:
+        vector<Transform> transforms;
         Color fill_color;
+        Color stroke_color;
+        float stroke_width;
+
+    public:
         Shape();
         Shape(Entity);
+        void apply_transform(Gdiplus::Graphics &);
+        virtual void render(Gdiplus::Graphics &) = 0;
     };
 
     class Rectangle : public Shape

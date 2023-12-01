@@ -1,9 +1,11 @@
 #ifndef __SHAPE__
 #define __SHAPE__
+
 #include <windows.h>
 #include <gdiplus.h>
 #include "color.h"
 #include "../reader/read_file.h"
+
 namespace Shapes
 {
     struct Transform
@@ -29,77 +31,99 @@ namespace Shapes
 
     class Rectangle : public Shape
     {
-    public:
+    protected:
         float x, y, width, height;
+
+    public:
         Rectangle();
         Rectangle(Entity);
-        void render_rect(Gdiplus::Graphics &);
+        void render(Gdiplus::Graphics &) override;
     };
 
     class Text : public Shape
     {
-    public:
+    protected:
         float x, y;
         int font_size;
-        string content, font_family;
+        unordered_map<string, Gdiplus::FontStyle> font_style_map = {
+            {"normal", Gdiplus::FontStyleRegular},
+            {"italic", Gdiplus::FontStyleItalic},
+        };
+        unordered_map<string, Gdiplus::StringAlignment> text_anchor_map = {
+            {"start", Gdiplus::StringAlignment::StringAlignmentNear},
+            {"middle", Gdiplus::StringAlignment::StringAlignmentCenter},
+            {"end", Gdiplus::StringAlignment::StringAlignmentFar},
+        };
+        unordered_map<string, float> offset_map;
+        string text_content, font_family, text_anchor, font_style;
+
+    public:
         Text();
         Text(Entity);
-        void render_text(Gdiplus::Graphics &);
+        void render(Gdiplus::Graphics &) override;
     };
 
     class Ellipse : public Shape
     {
-    public:
+    protected:
         float cx, cy, rx, ry;
+
+    public:
         Ellipse();
         Ellipse(Entity);
-        void render_ellipse(Gdiplus::Graphics &);
+        void render(Gdiplus::Graphics &) override;
     };
 
-    class Circle : public Shape
+    class Circle : public Ellipse
     {
     public:
-        float cx, cy, r;
         Circle();
         Circle(Entity);
-        void render_circle(Gdiplus::Graphics &);
     };
 
     class Line : public Shape
     {
-    public:
+    protected:
         float x1, y1, x2, y2;
+
+    public:
         Line();
         Line(Entity);
-        void render_line(Gdiplus::Graphics &);
+        void render(Gdiplus::Graphics &) override;
     };
 
-    class Polyline : public Shape
+    class PolyBase : public Shape
+    {
+    protected:
+        vector<pair<float, float>> points;
+
+    public:
+        PolyBase();
+        PolyBase(Entity);
+    };
+
+    class Polyline : public PolyBase
     {
     public:
-        vector<pair<float, float>> points;
         Polyline();
         Polyline(Entity);
-        void render_polyline(Gdiplus::Graphics &);
+        void render(Gdiplus::Graphics &) override;
     };
 
-    class Polygon : public Shape
+    class Polygon : public PolyBase
     {
     public:
-        vector<pair<float, float>> points;
         Polygon();
         Polygon(Entity);
-        void render_polygon(Gdiplus::Graphics &);
+        void render(Gdiplus::Graphics &) override;
     };
 
     class Path : public Shape
     {
     public:
-        vector<string> command = {"M", "L", "H", "V", "C", "S", "Q", "T", "A", "Z"};
-        string path_data;
         Path();
         Path(Entity);
-        void render_path(Gdiplus::Graphics &);
+        void render(Gdiplus::Graphics &) override;
     };
 }
 #endif

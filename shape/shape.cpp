@@ -1,20 +1,62 @@
 #include "shape.h"
 using namespace Shapes;
+
+// Shape Class
 Shape::Shape()
 {
     this->stroke_width = 0;
     this->stroke_color = Color(255, 0, 0, 0);
     this->fill_color = Color(255, 0, 0, 0);
+    this->transforms.clear();
 }
 Shape::Shape(Entity entity)
 {
-    if (!entity.attributes["stroke-width"].empty())
-        this->stroke_width = stof(entity.attributes["stroke-width"]);
+    if (entity.attributes.find("stroke") != entity.attributes.end())
+        this->stroke_width = entity.attributes.find("stroke-width") != entity.attributes.end() ? stof(entity.attributes["stroke-width"]) : 1;
     else
         this->stroke_width = 0;
 
-    this->stroke_color = Color(entity.attributes["stroke-opacity"], entity.attributes["stroke"]);
-    this->fill_color = Color(entity.attributes["fill-opacity"], entity.attributes["fill"]);
+    this->stroke_color = Color("stroke", entity.attributes);
+    this->fill_color = Color("fill", entity.attributes);
+
+    if (entity.attributes.find("transform") != entity.attributes.end())
+    {
+        istringstream element_stream(entity.attributes["transform"]);
+        string single_transform;
+        while (getline(element_stream, single_transform, ')'))
+        {
+            Transform vessel;
+            string values;
+            float value;
+
+            istringstream transform_stream(single_transform);
+            getline(transform_stream, vessel.type, '(');
+            getline(transform_stream, values);
+            istringstream values_stream(values);
+            while (values_stream >> value)
+                vessel.values.push_back(value);
+            vessel.type = format_text(vessel.type);
+            this->transforms.push_back(vessel);
+        }
+    }
+}
+
+void Shape::apply_transform(Gdiplus::Graphics &graphics)
+{
+    for (const auto &transform : this->transforms)
+    {
+        if (transform.type == "translate")
+            graphics.TranslateTransform(transform.values[0], transform.values[1]);
+        else if (transform.type == "rotate")
+            graphics.RotateTransform(transform.values[0]);
+        else if (transform.type == "scale")
+        {
+            if (transform.values.size() > 1)
+                graphics.ScaleTransform(transform.values[0], transform.values[1]);
+            else
+                graphics.ScaleTransform(transform.values[0], transform.values[0]);
+        }
+    }
 }
 
 Rectangle::Rectangle(Entity entity) : Shape(entity)

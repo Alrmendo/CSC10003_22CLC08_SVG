@@ -46,11 +46,56 @@ void ReadAndParse::print_data()
     }
 }
 
-// int main()
-// {
-//     string file_name = "../images/test.svg";
-//     ReadAndParse vessel(file_name);
-//     vessel.print_data();
-//     system("pause");
-//     return 0;
-// }
+string to_lower(const string &input)
+{
+    string vessel;
+    for (size_t i = 0; i < input.size(); i += 1)
+        vessel.push_back(tolower(input[i]));
+    return vessel;
+}
+
+string replace_comma_with_space(const string &input)
+{
+    string vessel;
+    for (size_t i = 0; i < input.size(); i += 1)
+    {
+        if (input[i] == ',' || isspace(input[i]))
+            vessel.push_back(' ');
+        else
+            vessel.push_back(input[i]);
+    }
+    return vessel;
+}
+
+string add_space_between_char_and_number(const string &input)
+{
+    string vessel;
+    for (size_t i = 0; i < input.size() - 1; i += 1)
+    {
+        vessel.push_back(input[i]);
+        if ((isalpha(input[i])) || (isdigit(input[i]) && input[i + 1] != '.' && !isdigit(input[i + 1])))
+            vessel.push_back(' ');
+    }
+    vessel.push_back(input.back());
+    return vessel;
+}
+
+string format_text(const string &input)
+{
+    string vessel;
+    size_t first_non_space = input.find_first_not_of(" \t\n\r\f\v");
+    size_t last_non_space = input.find_last_not_of(" \t\n\r\f\v");
+
+    if (first_non_space != string::npos && last_non_space != string::npos)
+    {
+        for (size_t i = first_non_space; i < last_non_space; i += 1)
+        {
+            if (isspace(input[i]) && isspace(input[i + 1]))
+                continue;
+
+            vessel.push_back(input[i]);
+        }
+        vessel.push_back(input[last_non_space]);
+    }
+    return vessel;
+}

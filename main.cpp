@@ -57,14 +57,13 @@ LRESULT CALLBACK HandleMessage(HWND window, UINT message, WPARAM w_param, LPARAM
     {
     case WM_CREATE:
     {
-        ReadAndParse file(file_name);
-        main_data = file.get_data();
+        svg_data = svg_parser.get_data();
         return 0;
     }
     case WM_PAINT:
     {
         hdc = BeginPaint(window, &ps);
-        render_file(hdc, main_data);
+        render_file(hdc, svg_data);
         EndPaint(window, &ps);
         return 0;
     }
@@ -73,36 +72,36 @@ LRESULT CALLBACK HandleMessage(HWND window, UINT message, WPARAM w_param, LPARAM
         PostQuitMessage(0);
         return 0;
     }
-
     case WM_MOUSEWHEEL:
     {
         if (GET_WHEEL_DELTA_WPARAM(w_param) > 0)
             zoom_scale *= 1.1;
         else
             zoom_scale *= 0.9;
-        InvalidateRect(window, NULL, TRUE);
+        RedrawWindow(window, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
         return 0;
     }
     case WM_KEYDOWN:
+    {
         if (w_param == 'A' || w_param == 'a')
         {
-            scroll_offset.X += 24 / zoom_scale;
-            InvalidateRect(window, NULL, TRUE);
+            scroll_offset.X += camera_speed / zoom_scale;
+            RedrawWindow(window, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
         }
         else if (w_param == 'D' || w_param == 'd')
         {
-            scroll_offset.X -= 24 / zoom_scale;
-            InvalidateRect(window, NULL, TRUE);
+            scroll_offset.X -= camera_speed / zoom_scale;
+            RedrawWindow(window, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
         }
         else if (w_param == 'W' || w_param == 'w')
         {
-            scroll_offset.Y += 24 / zoom_scale;
-            InvalidateRect(window, NULL, TRUE);
+            scroll_offset.Y += camera_speed / zoom_scale;
+            RedrawWindow(window, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
         }
         else if (w_param == 'S' || w_param == 's')
         {
-            scroll_offset.Y -= 24 / zoom_scale;
-            InvalidateRect(window, NULL, TRUE);
+            scroll_offset.Y -= camera_speed / zoom_scale;
+            RedrawWindow(window, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
         }
         else if (w_param == 'R' || w_param == 'r')
         {
@@ -110,56 +109,52 @@ LRESULT CALLBACK HandleMessage(HWND window, UINT message, WPARAM w_param, LPARAM
             scroll_offset.Y = 0;
             zoom_scale = 1;
             rotation_angle = 0;
-            rotate_offset.X = 0;
-            rotate_offset.Y = 0;
-            InvalidateRect(window, NULL, TRUE);
+            RedrawWindow(window, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
         }
-
-        else if (w_param == 'Q' || w_param == 'q' || w_param == 'E' || w_param == 'e')
+        else if (w_param == 'Q' || w_param == 'q')
         {
-            RECT window_rect;
-            GetClientRect(window, &window_rect);
-            Gdiplus::PointF window_size(static_cast<float>(window_rect.right), static_cast<float>(window_rect.bottom));
-
-            if (w_param == 'E' || w_param == 'e')
-                rotation_count += 1;
-            else if (w_param == 'Q' || w_param == 'q')
-                rotation_count -= 1;
-
-            if (rotation_count >= max_rotations)
-                rotation_count = 0;
-            if (rotation_count < 0)
-                rotation_count = max_rotations - 1;
-
-            if (rotation_count == 0)
-            {
-                rotation_angle = 0;
-                rotate_offset.X = 0;
-                rotate_offset.Y = 0;
-            }
-            else if (rotation_count == 1)
-            {
-                rotation_angle = 90;
-                rotate_offset.X = window_size.X;
-                rotate_offset.Y = 0;
-            }
-            else if (rotation_count == 2)
-            {
-                rotation_angle = 180;
-                rotate_offset.X = window_size.X;
-                rotate_offset.Y = window_size.Y;
-            }
-            else if (rotation_count == 3)
-            {
-                rotation_angle = 270;
-                rotate_offset.X = 0;
-                rotate_offset.Y = window_size.Y;
-            }
-            InvalidateRect(window, NULL, TRUE);
+            rotation_angle -= rotate_speed;
+            RedrawWindow(window, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
         }
-
+        else if (w_param == 'E' || w_param == 'e')
+        {
+            rotation_angle += rotate_speed;
+            RedrawWindow(window, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+        }
         return 0;
+    }
+    case WM_LBUTTONDOWN:
+    {
+        last_mouse_position.x = GET_X_LPARAM(l_param);
+        last_mouse_position.y = GET_Y_LPARAM(l_param);
+        is_dragging = true;
+        SetCapture(window);
+        return 0;
+    }
+    case WM_MOUSEMOVE:
+    {
+        if (is_dragging)
+        {
+            int delta_X = GET_X_LPARAM(l_param) - last_mouse_position.x;
+            int delta_Y = GET_Y_LPARAM(l_param) - last_mouse_position.y;
 
+            scroll_offset.X += delta_X / zoom_scale;
+            scroll_offset.Y += delta_Y / zoom_scale;
+
+            last_mouse_position.x = GET_X_LPARAM(l_param);
+            last_mouse_position.y = GET_Y_LPARAM(l_param);
+
+            RedrawWindow(window, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+        }
+        return 0;
+    }
+
+    case WM_LBUTTONUP:
+    {
+        is_dragging = false;
+        ReleaseCapture();
+        return 0;
+    }
     default:
         return DefWindowProc(window, message, w_param, l_param);
     }

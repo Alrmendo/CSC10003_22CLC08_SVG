@@ -165,8 +165,21 @@ LRESULT CALLBACK HandleMessage(HWND window, UINT message, WPARAM w_param, LPARAM
     }
 }
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, PSTR, INT iCmdShow)
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpCmdLine, INT iCmdShow)
 {
+    LPWSTR *argv;
+    int argc;
+    argv = CommandLineToArgvW(GetCommandLineW(), &argc);
+    wstring wide_filename;
+    if (argc > 1)
+    {
+        wide_filename = argv[1];
+        filename = string(wide_filename.begin(), wide_filename.end());
+        svg_parser = SvgParser(filename);
+        svg_data = svg_parser.get_data();
+    }
+    LocalFree(argv);
+
     HWND window;
     MSG message;
     WNDCLASS window_class;
@@ -185,23 +198,36 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, PSTR, INT iCmdShow)
     window_class.lpszMenuName = nullptr;
     window_class.lpszClassName = TEXT("GettingStarted");
 
+    // Register the window class
     RegisterClass(&window_class);
 
-    window = CreateWindow(
-        TEXT("GettingStarted"), // window class name
-        TEXT("SVG Demo"),       // window caption
-        WS_OVERLAPPEDWINDOW,    // window style
-        CW_USEDEFAULT,          // initial x position
-        CW_USEDEFAULT,          // initial y position
-        CW_USEDEFAULT,          // initial x size
-        CW_USEDEFAULT,          // initial y size
-        nullptr,                // parent window handle
-        nullptr,                // window menu handle
-        hInstance,              // program instance handle
-        nullptr);               // creation parameters
+    // Load the icon from file
+    HICON hIcon = static_cast<HICON>(LoadImage(NULL, TEXT("images/icon.ico"), IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE | LR_SHARED));
 
-    ShowWindow(window, iCmdShow);
-    UpdateWindow(window);
+    if (hIcon)
+    {
+        // Create the window with the loaded icon
+        window = CreateWindow(
+            TEXT("GettingStarted"), // window class name
+            TEXT("Sealed Vessel"),  // window caption
+            WS_OVERLAPPEDWINDOW,    // window style
+            160,                    // initial x position
+            90,                     // initial y position
+            1280,                   // initial x size
+            720,                    // initial y size
+            nullptr,                // parent window handle
+            nullptr,                // window menu handle
+            hInstance,              // program instance handle
+            nullptr);               // creation parameters
+
+        // Set the loaded icon as the application icon
+        SendMessage(window, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
+        SendMessage(window, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
+
+        // Show and update the window
+        ShowWindow(window, iCmdShow);
+        UpdateWindow(window);
+    }
 
     while (GetMessage(&message, nullptr, 0, 0))
     {

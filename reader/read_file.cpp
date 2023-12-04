@@ -1,49 +1,104 @@
 #include "read_file.h"
 
-ReadAndParse::ReadAndParse(const string &file_name)
+void SvgParser::traverse_node(const xml_node<> *node, Entity &entity, int depth)
 {
-    this->file_name = file_name;
-    this->read_file(file_name);
-}
+    entity.type = to_lower(node->name());
 
-void ReadAndParse::read_file(const string &file_name)
-{
-    xml_document<> document;
-    xml_node<> *root_node;
-    ifstream file(file_name);
-    vector<char> buffer((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
-    buffer.push_back('\0');
-    document.parse<0>(&buffer[0]);
-    root_node = document.first_node();
-    for (xml_node<> *node = root_node->first_node(); node != nullptr; node = node->next_sibling())
+    for (const xml_attribute<> *attr = node->first_attribute(); attr; attr = attr->next_attribute())
     {
-        Entity entity;
-        entity.entity_type = node->name();
-        for (xml_attribute<> *attribute = node->first_attribute(); attribute != nullptr; attribute = attribute->next_attribute())
-            entity.attributes[attribute->name()] = attribute->value();
-        if (node->value())
-            entity.content = node->value();
-        entities.push_back(entity);
+        string attr_value = replace_comma_with_space(attr->value());
+        if (to_lower(attr->name()) == "d")
+            attr_value = add_space_between_char_and_number(attr_value);
+        else
+            attr_value = to_lower(attr_value);
+        entity.attributes[to_lower(attr->name())] = format_text(attr_value);
+    }
+
+    entity.text_content = format_text(node->value());
+    entity.depth = depth;
+
+    for (const xml_node<> *child = node->first_node(); child; child = child->next_sibling())
+    {
+        if (child->name() && child->name_size() > 0)
+        {
+            Entity child_entity;
+            traverse_node(child, child_entity, depth + 1);
+            entity.children.push_back(child_entity);
+        }
     }
 }
 
-vector<Entity> ReadAndParse::get_data()
+void SvgParser::parse_file(const string &filename)
 {
-    return this->entities;
+    ifstream file(filename);
+    if (!file.is_open())
+        cout << "File not found\n";
+    else
+    {
+        vector<char> buffer((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
+        buffer.push_back('\0');
+
+        xml_document<> document;
+        document.parse<0>(&buffer[0]);
+
+        const xml_node<> *root_node = document.first_node();
+        traverse_node(root_node, data);
+
+        document.clear();
+    }
+    file.close();
 }
 
-void ReadAndParse::print_data()
+void SvgParser::traverse_svg_data_iterative() const
 {
-    for (int i = 0; i < entities.size(); i += 1)
+    vector<Entity> stack;
+    stack.push_back(this->data);
+
+    while (!stack.empty())
     {
-        const Entity &current_entity = entities[i];
-        cout << "#" << i << " " << current_entity.entity_type << endl;
-        for (const auto &attribute : current_entity.attributes)
-            cout << attribute.first << ": " << attribute.second << endl;
-        if (!current_entity.content.empty())
-            cout << "content: " << current_entity.content << endl;
-        cout << endl;
+        Entity entity = stack.back();
+        stack.pop_back();
+
+        cout << entity.depth << " ";
+        cout << string(4 * entity.depth, ' ') << "type: " << entity.type << endl;
+
+        for (const auto &attr : entity.attributes)
+            cout << string(4 * (entity.depth + 1), ' ') << attr.first << " = " << attr.second << endl;
+
+        if (!entity.text_content.empty())
+            cout << string(4 * (entity.depth + 1), ' ') << "content: " << entity.text_content << endl;
+
+        if (entity.type == "g")
+        {
+            for (auto &child : entity.children)
+            {
+                for (const auto &attr : entity.attributes)
+                {
+                    if (child.attributes.find(attr.first) == child.attributes.end())
+                        child.attributes[attr.first] = attr.second;
+                    else
+                    {
+                        if (attr.first == "transform")
+                            child.attributes["transform"] = attr.second + " " + child.attributes["transform"];
+                    }
+                }
+            }
+        }
+
+        for (auto iter = entity.children.rbegin(); iter != entity.children.rend(); ++iter)
+            stack.push_back(*iter);
     }
+}
+
+SvgParser::SvgParser(const string &filename)
+{
+    this->filename = filename;
+    this->parse_file(filename);
+}
+
+Entity SvgParser::get_data()
+{
+    return this->data;
 }
 
 string to_lower(const string &input)

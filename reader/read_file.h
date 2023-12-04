@@ -1,34 +1,38 @@
 #ifndef __READ_FILE__
 #define __READ_FILE__
+
 #include <iostream>
-#include <unordered_map>
-#include <sstream>
 #include <vector>
-#include <string>
+#include <cctype>
+#include <regex>
+#include <unordered_map>
 #include <fstream>
 #include "../libraries/rapidxml.hpp"
 
-using namespace rapidxml;
 using namespace std;
+using namespace rapidxml;
 
 struct Entity
 {
-    string entity_type = "";
+    int depth;
+    string type;
+    string text_content;
     unordered_map<string, string> attributes;
-    string content = "";
+    vector<Entity> children;
 };
 
-class ReadAndParse
+class SvgParser
 {
 private:
-    vector<Entity> entities;
-    string file_name;
+    Entity data;
+    string filename;
 
 public:
-    ReadAndParse(const string &file_name);
-    void read_file(const string &file_name);
-    vector<Entity> get_data();
-    void print_data();
+    SvgParser(const string &filename);
+    Entity get_data();
+    void traverse_node(const xml_node<> *node, Entity &entity, int depth = 0);
+    void parse_file(const string &filename);
+    void traverse_svg_data_iterative() const;
 };
 
 string to_lower(const string &input);

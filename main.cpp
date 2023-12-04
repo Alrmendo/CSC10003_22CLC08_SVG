@@ -1,50 +1,87 @@
 #include "main.h"
 
-VOID render_file(HDC &hdc, const vector<Entity> &main_data)
+void render_shape(Gdiplus::Graphics &graphics, Entity &entity)
+{
+    if (entity.type == "rect")
+    {
+        Shapes::Rectangle rectangle(entity);
+        rectangle.render(graphics);
+    }
+    else if (entity.type == "text")
+    {
+        Shapes::Text text(entity);
+        text.render(graphics);
+    }
+    else if (entity.type == "circle")
+    {
+        Shapes::Circle circle(entity);
+        circle.render(graphics);
+    }
+
+    else if (entity.type == "ellipse")
+    {
+        Shapes::Ellipse ellipse(entity);
+        ellipse.render(graphics);
+    }
+    else if (entity.type == "line")
+    {
+        Shapes::Line line(entity);
+        line.render(graphics);
+    }
+    else if (entity.type == "polyline")
+    {
+        Shapes::Polyline polyline(entity);
+        polyline.render(graphics);
+    }
+    else if (entity.type == "polygon")
+    {
+        Shapes::Polygon polygon(entity);
+        polygon.render(graphics);
+    }
+    else if (entity.type == "path")
+    {
+        Shapes::Path path(entity);
+        path.render(graphics);
+    }
+    else if (entity.type == "g")
+    {
+        for (auto &child : entity.children)
+        {
+            for (const auto &attr : entity.attributes)
+            {
+                if (child.attributes.find(attr.first) == child.attributes.end())
+                    child.attributes[attr.first] = attr.second;
+                else
+                {
+                    if (attr.first == "transform")
+                        child.attributes["transform"] = attr.second + " " + child.attributes["transform"];
+                }
+            }
+        }
+    }
+}
+
+void render_file(HDC &hdc, Entity &svg_root)
 {
     Gdiplus::Graphics graphics(hdc);
-    graphics.ScaleTransform(zoom_scale, zoom_scale);
-    graphics.TranslateTransform(scroll_offset.X + rotate_offset.X, scroll_offset.Y + rotate_offset.Y);
-    graphics.RotateTransform(rotation_angle);
+    graphics.Clear(Gdiplus::Color(255, 255, 255, 255));
     graphics.SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias);
+    graphics.SetTextRenderingHint(Gdiplus::TextRenderingHintAntiAlias);
 
-    for (const auto &entity : main_data)
+    graphics.ScaleTransform(zoom_scale, zoom_scale);
+    graphics.TranslateTransform(scroll_offset.X, scroll_offset.Y);
+    graphics.RotateTransform(rotation_angle);
+
+    vector<Entity> stack;
+    stack.push_back(svg_root);
+
+    while (!stack.empty())
     {
-        if (entity.entity_type == "rect")
-        {
-            Shapes::Rectangle rect(entity);
-            rect.render_rect(graphics);
-        }
-        else if (entity.entity_type == "text")
-        {
-            Shapes::Text text(entity);
-            text.render_text(graphics);
-        }
-        else if (entity.entity_type == "circle")
-        {
-            Shapes::Circle circle(entity);
-            circle.render_circle(graphics);
-        }
-        else if (entity.entity_type == "polyline")
-        {
-            Shapes::Polyline polyline(entity);
-            polyline.render_polyline(graphics);
-        }
-        else if (entity.entity_type == "ellipse")
-        {
-            Shapes::Ellipse elip(entity);
-            elip.render_ellipse(graphics);
-        }
-        else if (entity.entity_type == "line")
-        {
-            Shapes::Line line(entity);
-            line.render_line(graphics);
-        }
-        else if (entity.entity_type == "polygon")
-        {
-            Shapes::Polygon polygon(entity);
-            polygon.render_polygon(graphics);
-        }
+        Entity entity = stack.back();
+        stack.pop_back();
+        render_shape(graphics, entity);
+        for (auto iter = entity.children.rbegin(); iter != entity.children.rend(); ++iter)
+            stack.push_back(*iter);
     }
 }
 

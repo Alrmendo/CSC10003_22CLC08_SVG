@@ -1,2 +1,2 @@
-g++ reader/*.cpp shape/*.cpp *.cpp -mwindows -lgdiplus
-./a.exe path_to_file.svg
+g++ reader/*.cpp shape/*.cpp *.cpp -mwindows -lgdiplus -o main
+./main.exe path_to_file.svg

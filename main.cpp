@@ -234,7 +234,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpCmdLine, INT iCmdShow
     RegisterClass(&window_class);
 
     // Load the icon from file
-    HICON hIcon = static_cast<HICON>(LoadImage(NULL, TEXT("images/icon.ico"), IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE | LR_SHARED));
+    HICON hIcon = static_cast<HICON>(LoadImage(NULL, TEXT("misc/dreamnail.ico"), IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE | LR_SHARED));
 
     if (hIcon)
     {

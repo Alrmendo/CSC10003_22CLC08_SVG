@@ -122,6 +122,12 @@ namespace Shapes
         void render(Gdiplus::Graphics &) override;
     };
 
+    struct PathSegment
+    {
+        char type;
+        vector<float> points;
+    };
+
     class Path : public Shape
     {
     public:

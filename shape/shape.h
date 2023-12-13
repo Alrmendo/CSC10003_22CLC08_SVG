@@ -21,6 +21,7 @@ namespace Shapes
         Color fill_color;
         Color stroke_color;
         float stroke_width;
+        string fill_rule;
 
     public:
         Shape();

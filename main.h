@@ -4,8 +4,8 @@
 #include "reader/read_file.h"
 #include <Windowsx.h>
 
-void render_shape(Gdiplus::Graphics &, Entity &);
-void render_file(HDC &, Entity &);
+void render_shape(Gdiplus::Graphics &, Entity &, PAINTSTRUCT &);
+void render_file(HDC &, Entity &, PAINTSTRUCT &);
 
 LRESULT CALLBACK HandleMessage(HWND, UINT, WPARAM, LPARAM);
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, INT);

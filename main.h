@@ -11,7 +11,7 @@ LRESULT CALLBACK HandleMessage(HWND, UINT, WPARAM, LPARAM);
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, INT);
 
 // Global variables for render
-string filename = "images/sample.svg";
+string filename = "images/vessels/vessel-02.svg";
 SvgParser svg_parser(filename);
 Entity svg_data;
 

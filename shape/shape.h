@@ -48,8 +48,7 @@ namespace Shapes
     class Text : public Shape
     {
     protected:
-        float x, y;
-        int font_size;
+        float x, y, dx, dy, font_size;
         unordered_map<string, Gdiplus::FontStyle> font_style_map = {
             {"normal", Gdiplus::FontStyleRegular},
             {"italic", Gdiplus::FontStyleItalic},

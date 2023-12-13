@@ -130,6 +130,9 @@ namespace Shapes
 
     class Path : public Shape
     {
+    protected:
+        vector<PathSegment> separated_data;
+        
     public:
         Path();
         Path(Entity);

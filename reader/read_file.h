@@ -32,8 +32,8 @@ public:
     SvgParser(const string &filename);
     Entity get_data();
     void traverse_node(const xml_node<> *node, Entity &entity, int depth = 0);
-    void parse_file(const string &filename);
-    void traverse_svg_data_iterative() const;
+    void parse_file();
+    void print_data() const;
 };
 
 string to_lower(const string &input);

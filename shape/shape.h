@@ -22,6 +22,10 @@ namespace Shapes
         Color stroke_color;
         float stroke_width;
         string fill_rule;
+        unordered_map<string, Gdiplus::FillMode> fill_rule_map = {
+            {"nonzero", Gdiplus::FillModeWinding},
+            {"evenodd", Gdiplus::FillModeAlternate},
+        };
 
     public:
         Shape();

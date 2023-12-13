@@ -4,7 +4,8 @@
 #include <iostream>
 #include <vector>
 #include <cctype>
-#include <regex>
+#include <string>
+#include <sstream>
 #include <unordered_map>
 #include <fstream>
 #include "../libraries/rapidxml.hpp"

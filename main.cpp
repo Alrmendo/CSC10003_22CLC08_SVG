@@ -99,7 +99,7 @@ LRESULT CALLBACK HandleMessage(HWND window, UINT message, WPARAM w_param, LPARAM
 
     switch (message)
     {
-    case WM_CREATE:
+    case WM_PAINT:
     {
         hdc = BeginPaint(window, &ps);
         render_file(hdc, svg_data, ps);

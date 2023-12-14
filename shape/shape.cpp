@@ -115,10 +115,10 @@ void Text::render(Gdiplus::Graphics &graphics)
 
     if (!font_family->IsAvailable())
         font_family.reset(new Gdiplus::FontFamily(L"times new roman"));
-        
+
     Gdiplus::FontStyle font_style = this->font_style_map[this->font_style];
 
-    Gdiplus::PointF origin(this->x, this->y - 0.9 * this->font_size);
+    Gdiplus::PointF origin(this->x + this->dx, this->y + this->dy - 0.9 * this->font_size);
     origin.X += offset_map[this->text_anchor];
 
     Gdiplus::StringFormat format(Gdiplus::StringFormat::GenericDefault());
@@ -126,7 +126,7 @@ void Text::render(Gdiplus::Graphics &graphics)
 
     Gdiplus::GraphicsPath path;
     path.SetFillMode(this->fill_rule_map[this->fill_rule]);
-    path.AddString(wide_content.c_str(), -1, &font_family, font_style, this->font_size, origin, &format);
+    path.AddString(wide_content.c_str(), -1, font_family.get(), font_style, this->font_size, origin, &format);
 
     Gdiplus::SolidBrush fill_pen(Gdiplus::Color(this->fill_color.alpha, this->fill_color.red, this->fill_color.green, this->fill_color.blue));
     graphics.FillPath(&fill_pen, &path);

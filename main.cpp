@@ -12,6 +12,14 @@ void render_shape(Gdiplus::Graphics &graphics, Entity &entity)
             graphics.ScaleTransform(static_cast<float>(ps.rcPaint.bottom) / height, static_cast<float>(ps.rcPaint.bottom) / height);
             graphics.TranslateTransform(-min_x, -min_y);
         }
+        for (auto &child : entity.children)
+        {
+            for (const auto &attr : entity.attributes)
+            {
+                if (child.attributes.find(attr.first) == child.attributes.end())
+                    child.attributes[attr.first] = attr.second;
+            }
+        }
     }
     
     if (entity.type == "rect")

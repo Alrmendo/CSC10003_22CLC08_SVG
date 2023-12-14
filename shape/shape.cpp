@@ -111,6 +111,8 @@ void Text::render(Gdiplus::Graphics &graphics)
     wstring wide_content = wstring(this->text_content.begin(), this->text_content.end());
     wstring wide_font_family = wstring(this->font_family.begin(), this->font_family.end());
 
+    unique_ptr<Gdiplus::FontFamily> font_family(new Gdiplus::FontFamily(wide_font_family.c_str()));
+    
     Gdiplus::FontFamily font_family(wide_font_family.c_str());
     Gdiplus::FontStyle font_style = this->font_style_map[this->font_style];
 

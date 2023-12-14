@@ -193,9 +193,8 @@ LRESULT CALLBACK HandleMessage(HWND window, UINT message, WPARAM w_param, LPARAM
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpCmdLine, INT iCmdShow)
 {
-    LPWSTR *argv;
     int argc;
-    argv = CommandLineToArgvW(GetCommandLineW(), &argc);
+    LPWSTR *argv = CommandLineToArgvW(GetCommandLineW(), &argc);
     wstring wide_filename;
     if (argc > 1)
     {

@@ -11,6 +11,19 @@ void SvgParser::traverse_node(const xml_node<> *node, Entity &entity, int depth)
             attr_value = add_space_between_char_and_number(attr_value);
         else
             attr_value = to_lower(attr_value);
+        if (to_lower(attr->name()) == "style")
+        {
+            istringstream style_stream(attr_value);
+            string vessel;
+            while (getline(style_stream, vessel, ';'))
+            {
+                size_t colon_position = vessel.find(':');
+                if (colon_position != string::npos)
+                {
+                    string property = vessel.substr(0, colon_position);
+                }
+            }
+        }
         entity.attributes[to_lower(attr->name())] = format_text(attr_value);
     }
 

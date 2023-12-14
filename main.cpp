@@ -2,6 +2,16 @@
 
 void render_shape(Gdiplus::Graphics &graphics, Entity &entity)
 {
+    if (entity.type == "svg" || entity.type == "g")
+    {
+        if (entity.type == "svg" && entity.attributes.find("viewbox") != entity.attributes.end())
+        {
+            istringstream stream(entity.attributes["viewbox"]);
+            float min_x, min_y, width, height;
+            stream >> min_x >> min_y >> width >> height;
+        }
+    }
+    
     if (entity.type == "rect")
     {
         Shapes::Rectangle rectangle(entity);

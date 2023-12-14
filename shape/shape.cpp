@@ -19,6 +19,7 @@ Shape::Shape(Entity entity)
 
     this->stroke_color = Color("stroke", entity.attributes);
     this->fill_color = Color("fill", entity.attributes);
+    this->fill_rule = (entity.attributes.find("fill-rule") != entity.attributes.end()) ? entity.attributes["fill-rule"] : "nonzero";
 
     if (entity.attributes.find("transform") != entity.attributes.end())
     {

@@ -234,19 +234,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpCmdLine, INT iCmdShow
     {
         // Create the window with the loaded icon
         window = CreateWindow(
-            TEXT("GettingStarted"), // window class name
-            TEXT("Sealed Vessel"),  // window caption
+            TEXT("GettingStarted"),     // window class name
+            TEXT("Sealed Vessel"),      // window caption
             WS_TILEDWINDOW | WS_BORDER, // window style
             open_width,                 // initial x position
             open_height,                // initial y position
             window_width,               // initial x size
             window_height,              // initial y size
-            nullptr,                // parent window handle
-            nullptr,                // window menu handle
-            hInstance,              // program instance handle
-            nullptr);               // creation parameters
+            nullptr,                    // parent window handle
+            nullptr,                    // window menu handle
+            hInstance,                  // program instance handle
+            nullptr);                   // creation parameters
     }
-
     if (window)
     {
         // Set the loaded icon as the application icon
@@ -256,7 +255,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpCmdLine, INT iCmdShow
         ShowWindow(window, SW_SHOWMAXIMIZED);
         UpdateWindow(window);
     }
-    
+
     while (GetMessage(&message, nullptr, 0, 0))
     {
         TranslateMessage(&message);

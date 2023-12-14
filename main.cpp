@@ -1,6 +1,6 @@
 #include "main.h"
 
-void render_shape(Gdiplus::Graphics &graphics, Entity &entity)
+void render_shape(Gdiplus::Graphics &graphics, Entity &entity, PAINTSTRUCT &ps)
 {
     if (entity.type == "svg" || entity.type == "g")
     {
@@ -26,7 +26,6 @@ void render_shape(Gdiplus::Graphics &graphics, Entity &entity)
             }
         }
     }
-    
     if (entity.type == "rect")
     {
         Shapes::Rectangle rectangle(entity);

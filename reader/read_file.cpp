@@ -21,6 +21,8 @@ void SvgParser::traverse_node(const xml_node<> *node, Entity &entity, int depth)
                 if (colon_position != string::npos)
                 {
                     string property = vessel.substr(0, colon_position);
+                    string value = vessel.substr(colon_position + 1);
+                    entity.attributes[format_text(property)] = format_text(value);
                 }
             }
         }

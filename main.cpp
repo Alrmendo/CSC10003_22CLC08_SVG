@@ -125,22 +125,22 @@ LRESULT CALLBACK HandleMessage(HWND window, UINT message, WPARAM w_param, LPARAM
         if (w_param == 'A' || w_param == 'a')
         {
             scroll_offset.X += camera_speed / zoom_scale;
-            RedrawWindow(window, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+            InvalidateRect(window, NULL, TRUE);
         }
         else if (w_param == 'D' || w_param == 'd')
         {
             scroll_offset.X -= camera_speed / zoom_scale;
-            RedrawWindow(window, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+            InvalidateRect(window, NULL, TRUE);
         }
         else if (w_param == 'W' || w_param == 'w')
         {
             scroll_offset.Y += camera_speed / zoom_scale;
-            RedrawWindow(window, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+            InvalidateRect(window, NULL, TRUE);
         }
         else if (w_param == 'S' || w_param == 's')
         {
             scroll_offset.Y -= camera_speed / zoom_scale;
-            RedrawWindow(window, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+            InvalidateRect(window, NULL, TRUE);
         }
         else if (w_param == 'R' || w_param == 'r')
         {
@@ -148,17 +148,17 @@ LRESULT CALLBACK HandleMessage(HWND window, UINT message, WPARAM w_param, LPARAM
             scroll_offset.Y = 0;
             zoom_scale = 1;
             rotation_angle = 0;
-            RedrawWindow(window, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+            InvalidateRect(window, NULL, TRUE);
         }
         else if (w_param == 'Q' || w_param == 'q')
         {
             rotation_angle -= rotate_speed;
-            RedrawWindow(window, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+            InvalidateRect(window, NULL, TRUE);
         }
         else if (w_param == 'E' || w_param == 'e')
         {
             rotation_angle += rotate_speed;
-            RedrawWindow(window, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+            InvalidateRect(window, NULL, TRUE);
         }
         return 0;
     }

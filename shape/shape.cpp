@@ -125,6 +125,7 @@ void Text::render(Gdiplus::Graphics &graphics)
     format.SetAlignment(this->text_anchor_map[this->text_anchor]);
 
     Gdiplus::GraphicsPath path;
+    path.SetFillMode(this->fill_rule_map[this->fill_rule]);
     path.AddString(wide_content.c_str(), -1, &font_family, font_style, this->font_size, origin, &format);
 
     Gdiplus::SolidBrush fill_pen(Gdiplus::Color(this->fill_color.alpha, this->fill_color.red, this->fill_color.green, this->fill_color.blue));

@@ -26,7 +26,7 @@ void render_shape(Gdiplus::Graphics &graphics, Entity &entity, PAINTSTRUCT &ps)
             }
         }
     }
-    if (entity.type == "rect")
+    else if (entity.type == "rect")
     {
         Shapes::Rectangle rectangle(entity);
         rectangle.render(graphics);
@@ -66,22 +66,6 @@ void render_shape(Gdiplus::Graphics &graphics, Entity &entity, PAINTSTRUCT &ps)
     {
         Shapes::Path path(entity);
         path.render(graphics);
-    }
-    else if (entity.type == "g")
-    {
-        for (auto &child : entity.children)
-        {
-            for (const auto &attr : entity.attributes)
-            {
-                if (child.attributes.find(attr.first) == child.attributes.end())
-                    child.attributes[attr.first] = attr.second;
-                else
-                {
-                    if (attr.first == "transform")
-                        child.attributes["transform"] = attr.second + " " + child.attributes["transform"];
-                }
-            }
-        }
     }
 }
 

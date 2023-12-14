@@ -236,11 +236,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpCmdLine, INT iCmdShow
         window = CreateWindow(
             TEXT("GettingStarted"), // window class name
             TEXT("Sealed Vessel"),  // window caption
-            WS_OVERLAPPEDWINDOW,    // window style
-            160,                    // initial x position
-            90,                     // initial y position
-            1280,                   // initial x size
-            720,                    // initial y size
+            WS_TILEDWINDOW | WS_BORDER, // window style
+            open_width,                 // initial x position
+            open_height,                // initial y position
+            window_width,               // initial x size
+            window_height,              // initial y size
             nullptr,                // parent window handle
             nullptr,                // window menu handle
             hInstance,              // program instance handle

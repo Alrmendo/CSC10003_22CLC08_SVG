@@ -108,7 +108,6 @@ void SvgParser::print_data() const
 SvgParser::SvgParser(const string &filename)
 {
     this->filename = filename;
-    this->parse_file(filename);
 }
 
 Entity SvgParser::get_data()

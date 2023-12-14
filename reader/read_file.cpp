@@ -64,7 +64,7 @@ void SvgParser::parse_file()
     file.close();
 }
 
-void SvgParser::traverse_svg_data_iterative() const
+void SvgParser::print_data() const
 {
     vector<Entity> stack;
     stack.push_back(this->data);

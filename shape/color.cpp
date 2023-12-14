@@ -206,7 +206,7 @@ Color::Color(const string &named_color)
     else
     {
         auto vessel = named_colors.find(named_color);
-        *this = vessel != named_colors.end() ? vessel->second : Color(255, 0, 0, 0);
+        *this = vessel != named_colors.end() ? Color("", vessel->second) : Color(0, 0, 0, 0);
     }
 }
 

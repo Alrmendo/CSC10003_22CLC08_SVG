@@ -236,7 +236,7 @@ void Polygon::render(Gdiplus::Graphics &graphics)
         gdiplus_points.push_back(Gdiplus::PointF(point.first, point.second));
 
     Gdiplus::SolidBrush fill_pen(Gdiplus::Color(fill_color.alpha, fill_color.red, fill_color.green, fill_color.blue));
-    graphics.FillPolygon(&fill_pen, gdiplus_points.data(), gdiplus_points.size(), Gdiplus::FillModeWinding);
+    graphics.FillPolygon(&fill_pen, gdiplus_points.data(), gdiplus_points.size(), this->fill_rule_map[this->fill_rule]);
 
     if (stroke_width != 0)
     {

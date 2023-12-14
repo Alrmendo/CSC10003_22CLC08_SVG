@@ -106,13 +106,6 @@ LRESULT CALLBACK HandleMessage(HWND window, UINT message, WPARAM w_param, LPARAM
         EndPaint(window, &ps);
         return 0;
     }
-    case WM_PAINT:
-    {
-        hdc = BeginPaint(window, &ps);
-        render_file(hdc, svg_data);
-        EndPaint(window, &ps);
-        return 0;
-    }
     case WM_DESTROY:
     {
         PostQuitMessage(0);

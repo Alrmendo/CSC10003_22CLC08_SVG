@@ -39,7 +39,7 @@ Color::Color(const string &opacity, const string &rgb)
     }
 }
 
-unordered_map<string, Color> named_colors = {
+unordered_map<string, string> named_colors = {
     {"aliceblue", "rgb(240 248 255)"},
     {"antiquewhite", "rgb(250 235 215)"},
     {"aqua", "rgb(0 255 255)"},
@@ -107,7 +107,7 @@ unordered_map<string, Color> named_colors = {
     {"lavenderblush", "rgb(255 240 245)"},
     {"lawngreen", "rgb(124 252 0)"},
     {"lemonchiffon", "rgb(255 250 205)"},
-   {"lightblue", "rgb(173 216 230)"},
+    {"lightblue", "rgb(173 216 230)"},
     {"lightcoral", "rgb(240 128 128)"},
     {"lightcyan", "rgb(224 255 255)"},
     {"lightgoldenrodyellow", "rgb(250 250 210)"},
@@ -155,7 +155,7 @@ unordered_map<string, Color> named_colors = {
     {"papayawhip", "rgb(255 239 213)"},
     {"peachpuff", "rgb(255 218 185)"},
     {"peru", "rgb(205 133 63)"},
-   {"pink", "rgb(255 192 203)"},
+    {"pink", "rgb(255 192 203)"},
     {"plum", "rgb(221 160 221)"},
     {"powderblue", "rgb(176 224 230)"},
     {"purple", "rgb(128 0 128)"},
@@ -199,7 +199,6 @@ void Color::hex_to_rgb(const string &hex_color)
     istringstream(vessel.substr(2, 2)) >> hex >> this->green;
     istringstream(vessel.substr(4, 2)) >> hex >> this->blue;
 }
-
 Color::Color(const string &named_color)
 {
     if (named_color[0] == '#')

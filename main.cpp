@@ -9,6 +9,8 @@ void render_shape(Gdiplus::Graphics &graphics, Entity &entity)
             istringstream stream(entity.attributes["viewbox"]);
             float min_x, min_y, width, height;
             stream >> min_x >> min_y >> width >> height;
+            graphics.ScaleTransform(static_cast<float>(ps.rcPaint.bottom) / height, static_cast<float>(ps.rcPaint.bottom) / height);
+            graphics.TranslateTransform(-min_x, -min_y);
         }
     }
     

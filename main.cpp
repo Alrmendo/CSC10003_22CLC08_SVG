@@ -101,7 +101,9 @@ LRESULT CALLBACK HandleMessage(HWND window, UINT message, WPARAM w_param, LPARAM
     {
     case WM_CREATE:
     {
-        svg_data = svg_parser.get_data();
+        hdc = BeginPaint(window, &ps);
+        render_file(hdc, svg_data, ps);
+        EndPaint(window, &ps);
         return 0;
     }
     case WM_PAINT:

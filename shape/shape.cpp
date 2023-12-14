@@ -172,13 +172,6 @@ Circle::Circle(Entity entity) : Ellipse(entity)
     this->ry = entity.attributes.find("r") != entity.attributes.end() ? stof(entity.attributes["r"]) : 0;
 }
 
-// Circle Class
-Circle::Circle(Entity entity) : Ellipse(entity)
-{
-    this->rx = entity.attributes.find("r") != entity.attributes.end() ? stof(entity.attributes["r"]) : 0;
-    this->ry = entity.attributes.find("r") != entity.attributes.end() ? stof(entity.attributes["r"]) : 0;
-}
-
 // Line Class
 Line::Line(Entity entity) : Shape(entity)
 {

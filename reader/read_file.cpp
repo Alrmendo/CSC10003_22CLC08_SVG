@@ -142,7 +142,9 @@ string add_space_between_char_and_number(const string &input)
     for (size_t i = 0; i < input.size() - 1; i += 1)
     {
         vessel.push_back(input[i]);
-        if ((isalpha(input[i])) || (isdigit(input[i]) && input[i + 1] != '.' && !isdigit(input[i + 1])))
+        if (isalpha(input[i]) && tolower(input[i]) != 'e')
+            vessel.push_back(' ');
+        else if (isdigit(input[i]) && input[i + 1] != '.' && tolower(input[i + 1]) != 'e' && !isdigit(input[i + 1]))
             vessel.push_back(' ');
     }
     vessel.push_back(input.back());

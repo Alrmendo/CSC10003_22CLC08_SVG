@@ -100,28 +100,24 @@ LRESULT CALLBACK HandleMessage(HWND window, UINT message, WPARAM w_param, LPARAM
     switch (message)
     {
     case WM_PAINT:
-    {
         hdc = BeginPaint(window, &ps);
         render_file(hdc, svg_data, ps);
         EndPaint(window, &ps);
         return 0;
-    }
+
     case WM_DESTROY:
-    {
         PostQuitMessage(0);
         return 0;
-    }
+
     case WM_MOUSEWHEEL:
-    {
         if (GET_WHEEL_DELTA_WPARAM(w_param) > 0)
             zoom_scale *= 1.1;
         else
             zoom_scale *= 0.9;
         InvalidateRect(window, NULL, TRUE);
         return 0;
-    }
+
     case WM_KEYDOWN:
-    {
         if (w_param == 'A' || w_param == 'a')
         {
             scroll_offset.X += camera_speed / zoom_scale;
@@ -152,26 +148,24 @@ LRESULT CALLBACK HandleMessage(HWND window, UINT message, WPARAM w_param, LPARAM
         }
         else if (w_param == 'Q' || w_param == 'q')
         {
-            rotation_angle -= rotate_speed;
+            rotation_angle = (rotation_angle - rotate_speed) % 360;
             InvalidateRect(window, NULL, TRUE);
         }
         else if (w_param == 'E' || w_param == 'e')
         {
-            rotation_angle += rotate_speed;
+            rotation_angle = (rotation_angle + rotate_speed) % 360;
             InvalidateRect(window, NULL, TRUE);
         }
         return 0;
-    }
+
     case WM_LBUTTONDOWN:
-    {
         last_mouse_position.x = GET_X_LPARAM(l_param);
         last_mouse_position.y = GET_Y_LPARAM(l_param);
         is_dragging = true;
         SetCapture(window);
         return 0;
-    }
+
     case WM_MOUSEMOVE:
-    {
         if (is_dragging)
         {
             int delta_X = GET_X_LPARAM(l_param) - last_mouse_position.x;
@@ -186,14 +180,12 @@ LRESULT CALLBACK HandleMessage(HWND window, UINT message, WPARAM w_param, LPARAM
             InvalidateRect(window, NULL, TRUE);
         }
         return 0;
-    }
 
     case WM_LBUTTONUP:
-    {
         is_dragging = false;
         ReleaseCapture();
         return 0;
-    }
+
     default:
         return DefWindowProc(window, message, w_param, l_param);
     }

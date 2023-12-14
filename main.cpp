@@ -205,7 +205,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpCmdLine, INT iCmdShow
     svg_parser = SvgParser(filename);
     svg_parser.parse_file();
     svg_data = svg_parser.get_data();
-    
+
     HWND window;
     MSG message;
     WNDCLASS window_class;
@@ -245,14 +245,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpCmdLine, INT iCmdShow
             nullptr,                // window menu handle
             hInstance,              // program instance handle
             nullptr);               // creation parameters
-
-        // Set the loaded icon as the application icon
-        SendMessage(window, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
-        SendMessage(window, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
-
-        // Show and update the window
-        ShowWindow(window, iCmdShow);
-        UpdateWindow(window);
     }
 
     while (GetMessage(&message, nullptr, 0, 0))

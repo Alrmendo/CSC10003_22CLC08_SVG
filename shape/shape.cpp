@@ -90,7 +90,9 @@ Text::Text(Entity entity) : Shape(entity)
 {
     this->x = entity.attributes.find("x") != entity.attributes.end() ? stof(entity.attributes["x"]) : 0;
     this->y = entity.attributes.find("y") != entity.attributes.end() ? stof(entity.attributes["y"]) : 0;
-    this->font_size = entity.attributes.find("font-size") != entity.attributes.end() ? stoi(entity.attributes["font-size"]) : 0;
+    this->dx = entity.attributes.find("dx") != entity.attributes.end() ? stof(entity.attributes["dx"]) : 0;
+    this->dy = entity.attributes.find("dy") != entity.attributes.end() ? stof(entity.attributes["dy"]) : 0;
+    this->font_size = entity.attributes.find("font-size") != entity.attributes.end() ? stof(entity.attributes["font-size"]) : 0;
     this->font_family = entity.attributes.find("font-family") != entity.attributes.end() ? entity.attributes["font-family"] : "times new roman";
     this->text_anchor = entity.attributes.find("text-anchor") != entity.attributes.end() ? entity.attributes["text-anchor"] : "start";
     this->font_style = entity.attributes.find("font-style") != entity.attributes.end() ? entity.attributes["font-style"] : "normal";

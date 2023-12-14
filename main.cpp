@@ -183,7 +183,7 @@ LRESULT CALLBACK HandleMessage(HWND window, UINT message, WPARAM w_param, LPARAM
             last_mouse_position.x = GET_X_LPARAM(l_param);
             last_mouse_position.y = GET_Y_LPARAM(l_param);
 
-            RedrawWindow(window, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+            InvalidateRect(window, NULL, TRUE);
         }
         return 0;
     }

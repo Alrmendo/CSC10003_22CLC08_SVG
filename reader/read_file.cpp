@@ -45,7 +45,7 @@ void SvgParser::traverse_node(const xml_node<> *node, Entity &entity, int depth)
 
 void SvgParser::parse_file()
 {
-    ifstream file(this -> filename);
+    ifstream file(this->filename);
     if (!file.is_open())
         cout << "File not found\n";
     else

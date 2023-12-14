@@ -40,11 +40,11 @@ Color::Color(const string &opacity, const string &rgb)
 }
 
 unordered_map<string, Color> named_colors = {
-    {"aliceblue", Color(240, 248, 255)},
-    {"antiquewhite", Color(250, 235, 215)},
-    {"aqua", Color(0, 255, 255)},
-    {"aquamarine", Color(127, 255, 212)},
-    {"azure", Color(240, 255, 255)},
+    {"aliceblue", "rgb(240 248 255)"},
+    {"antiquewhite", "rgb(250 235 215)"},
+    {"aqua", "rgb(0 255 255)"},
+    {"aquamarine", "rgb(127 255 212)"},
+    {"azure", "rgb(240 255 255)"},
     {"beige", Color(245, 245, 220)},
     {"bisque", Color(255, 228, 196)},
     {"black", Color(0, 0, 0)},

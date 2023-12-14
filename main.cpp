@@ -202,7 +202,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpCmdLine, INT iCmdShow
         filename = string(wide_filename.begin(), wide_filename.end());
     }
     LocalFree(argv);
-
+    svg_parser = SvgParser(filename);
+    svg_parser.parse_file();
+    svg_data = svg_parser.get_data();
+    
     HWND window;
     MSG message;
     WNDCLASS window_class;

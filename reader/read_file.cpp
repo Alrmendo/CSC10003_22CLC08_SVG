@@ -43,7 +43,7 @@ void SvgParser::traverse_node(const xml_node<> *node, Entity &entity, int depth)
     }
 }
 
-void SvgParser::parse_file(const string &filename)
+void SvgParser::parse_file()
 {
     ifstream file(filename);
     if (!file.is_open())

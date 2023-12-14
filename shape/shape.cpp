@@ -209,11 +209,11 @@ void Polyline::render(Gdiplus::Graphics &graphics)
     Gdiplus::GraphicsState state = graphics.Save();
     this->apply_transform(graphics);
 
-    Gdiplus::SolidBrush fill_pen(Gdiplus::Color(fill_color.alpha, fill_color.red, fill_color.green, fill_color.blue));
     Gdiplus::GraphicsPath path;
     path.SetFillMode(this->fill_rule_map[this->fill_rule]);
     for (size_t i = 0; i < points.size() - 1; i += 1)
         path.AddLine(points[i].first, points[i].second, points[i + 1].first, points[i + 1].second);
+    Gdiplus::SolidBrush fill_pen(Gdiplus::Color(fill_color.alpha, fill_color.red, fill_color.green, fill_color.blue));
     graphics.FillPath(&fill_pen, &path);
 
     if (stroke_width != 0)

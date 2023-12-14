@@ -113,6 +113,9 @@ void Text::render(Gdiplus::Graphics &graphics)
 
     unique_ptr<Gdiplus::FontFamily> font_family(new Gdiplus::FontFamily(wide_font_family.c_str()));
     
+    if (!font_family->IsAvailable())
+        font_family.reset(new Gdiplus::FontFamily(L"times new roman"));
+    
     Gdiplus::FontFamily font_family(wide_font_family.c_str());
     Gdiplus::FontStyle font_style = this->font_style_map[this->font_style];
 

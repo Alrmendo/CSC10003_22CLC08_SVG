@@ -117,7 +117,7 @@ LRESULT CALLBACK HandleMessage(HWND window, UINT message, WPARAM w_param, LPARAM
             zoom_scale *= 1.1;
         else
             zoom_scale *= 0.9;
-        RedrawWindow(window, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+        InvalidateRect(window, NULL, TRUE);
         return 0;
     }
     case WM_KEYDOWN:

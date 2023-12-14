@@ -69,10 +69,9 @@ void render_shape(Gdiplus::Graphics &graphics, Entity &entity, PAINTSTRUCT &ps)
     }
 }
 
-void render_file(HDC &hdc, Entity &svg_root)
+void render_file(HDC &hdc, Entity &svg_root, PAINTSTRUCT &ps)
 {
     Gdiplus::Graphics graphics(hdc);
-    graphics.Clear(Gdiplus::Color(255, 255, 255, 255));
     graphics.SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias);
     graphics.SetTextRenderingHint(Gdiplus::TextRenderingHintAntiAlias);
 
@@ -87,7 +86,7 @@ void render_file(HDC &hdc, Entity &svg_root)
     {
         Entity entity = stack.back();
         stack.pop_back();
-        render_shape(graphics, entity);
+        render_shape(graphics, entity, ps);
         for (auto iter = entity.children.rbegin(); iter != entity.children.rend(); ++iter)
             stack.push_back(*iter);
     }

@@ -18,6 +18,11 @@ void render_shape(Gdiplus::Graphics &graphics, Entity &entity)
             {
                 if (child.attributes.find(attr.first) == child.attributes.end())
                     child.attributes[attr.first] = attr.second;
+                else
+                {
+                    if (attr.first == "transform")
+                        child.attributes["transform"] = attr.second + " " + child.attributes["transform"];
+                }
             }
         }
     }

@@ -247,6 +247,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpCmdLine, INT iCmdShow
             nullptr);               // creation parameters
     }
 
+    if (window)
+    {
+        // Set the loaded icon as the application icon
+        SendMessage(window, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
+        SendMessage(window, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
+        // Show and update the window
+        ShowWindow(window, SW_SHOWMAXIMIZED);
+        UpdateWindow(window);
+    }
+    
     while (GetMessage(&message, nullptr, 0, 0))
     {
         TranslateMessage(&message);

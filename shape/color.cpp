@@ -199,6 +199,7 @@ void Color::hex_to_rgb(const string &hex_color)
     istringstream(vessel.substr(2, 2)) >> hex >> this->green;
     istringstream(vessel.substr(4, 2)) >> hex >> this->blue;
 }
+
 Color::Color(const string &named_color)
 {
     if (named_color[0] == '#')
@@ -229,4 +230,8 @@ Color::Color(const string &type, unordered_map<string, string> &attributes)
         *this = Color(0, 0, 0);
         this->alpha = attributes.find(type + "-opacity") != attributes.end() ? static_cast<int>(255 * stof(attributes[type + "-opacity"])) : 255;
     }
+    this->alpha = min(max(this->alpha, 0), 255);
+    this->red = min(max(this->red, 0), 255);
+    this->green = min(max(this->green, 0), 255);
+    this->blue = min(max(this->blue, 0), 255);
 }

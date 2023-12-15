@@ -281,4 +281,16 @@ void Path::render(Gdiplus::Graphics &graphics)
     path.SetFillMode(this->fill_rule_map[this->fill_rule]);
     Gdiplus::PointF open_point;
     Gdiplus::PointF current_point;
+    for (PathSegment segment : this->separated_data)
+    {
+        if (segment.type == 'M')
+        {
+            if (segment.points.size() > 1)
+            {
+                path.StartFigure();
+                open_point = Gdiplus::PointF(segment.points[0], segment.points[1]);
+                current_point = open_point;
+            }
+        }
+    }
 }

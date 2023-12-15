@@ -334,7 +334,7 @@ void Path::render(Gdiplus::Graphics &graphics)
                 current_point = end_point;
             }
         }
-        
+
         else if (segment.type == 'C')
         {
             for (size_t i = 0; i < segment.points.size(); i += 6)
@@ -357,6 +357,15 @@ void Path::render(Gdiplus::Graphics &graphics)
                 path.StartFigure();
                 open_point = Gdiplus::PointF(current_point.X + segment.points[0], current_point.Y + segment.points[1]);
                 current_point = open_point;
+                for (size_t i = 2; i < segment.points.size(); i += 2)
+                {
+                    if (i + 1 < segment.points.size())
+                    {
+                        Gdiplus::PointF end_point(current_point.X + segment.points[i], current_point.Y + segment.points[i + 1]);
+                        path.AddLine(current_point, end_point);
+                        current_point = end_point;
+                    }
+                }
             }
         }
     }

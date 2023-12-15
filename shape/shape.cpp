@@ -368,7 +368,7 @@ void Path::render(Gdiplus::Graphics &graphics)
                 }
             }
         }
-        
+
         else if (segment.type == 'l')
         {
             for (size_t i = 0; i < segment.points.size(); i += 2)
@@ -387,6 +387,16 @@ void Path::render(Gdiplus::Graphics &graphics)
             for (size_t i = 0; i < segment.points.size(); i += 1)
             {
                 Gdiplus::PointF end_point(current_point.X + segment.points[i], current_point.Y);
+                path.AddLine(current_point, end_point);
+                current_point = end_point;
+            }
+        }
+
+        else if (segment.type == 'v')
+        {
+            for (size_t i = 0; i < segment.points.size(); i += 1)
+            {
+                Gdiplus::PointF end_point(current_point.X, current_point.Y + segment.points[i]);
                 path.AddLine(current_point, end_point);
                 current_point = end_point;
             }

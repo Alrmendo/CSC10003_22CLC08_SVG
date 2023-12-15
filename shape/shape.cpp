@@ -249,6 +249,19 @@ void Polygon::render(Gdiplus::Graphics &graphics)
 // Path Class
 Path::Path(Entity entity) : Shape(entity)
 {
+    string vessel;
+    istringstream stream(entity.attributes["d"]);
+
+    while (stream >> vessel)
+    {
+        char command = vessel[0];
+        if (isalpha(command))
+        {
+            PathSegment node;
+            node.type = command;
+            this->separated_data.push_back(node);
+        }
+    }
 }
 void Path::render(Gdiplus::Graphics &graphics)
 {

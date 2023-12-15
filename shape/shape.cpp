@@ -290,6 +290,15 @@ void Path::render(Gdiplus::Graphics &graphics)
                 path.StartFigure();
                 open_point = Gdiplus::PointF(segment.points[0], segment.points[1]);
                 current_point = open_point;
+                for (size_t i = 2; i < segment.points.size(); i += 2)
+                {
+                    if (i + 1 < segment.points.size())
+                    {
+                        Gdiplus::PointF end_point(segment.points[i], segment.points[i + 1]);
+                        path.AddLine(current_point, end_point);
+                        current_point = end_point;
+                    }
+                }
             }
         }
     }

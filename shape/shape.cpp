@@ -259,6 +259,15 @@ Path::Path(Entity entity) : Shape(entity)
         {
             PathSegment node;
             node.type = command;
+            while (stream >> vessel)
+            {
+                if (isalpha(vessel[0]))
+                {
+                    stream.seekg(-vessel.size(), ios::cur);
+                    break;
+                }
+                node.points.push_back(stof(vessel));
+            }
             this->separated_data.push_back(node);
         }
     }

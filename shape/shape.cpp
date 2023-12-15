@@ -368,7 +368,7 @@ void Path::render(Gdiplus::Graphics &graphics)
                 }
             }
         }
-
+        
         else if (segment.type == 'l')
         {
             for (size_t i = 0; i < segment.points.size(); i += 2)
@@ -381,7 +381,7 @@ void Path::render(Gdiplus::Graphics &graphics)
                 }
             }
         }
-        
+
         else if (segment.type == 'h')
         {
             for (size_t i = 0; i < segment.points.size(); i += 1)
@@ -399,6 +399,21 @@ void Path::render(Gdiplus::Graphics &graphics)
                 Gdiplus::PointF end_point(current_point.X, current_point.Y + segment.points[i]);
                 path.AddLine(current_point, end_point);
                 current_point = end_point;
+            }
+        }
+
+        else if (segment.type == 'c')
+        {
+            for (size_t i = 0; i < segment.points.size(); i += 6)
+            {
+                if (i + 5 < segment.points.size())
+                {
+                    Gdiplus::PointF control_point_first(current_point.X + segment.points[i], current_point.Y + segment.points[i + 1]);
+                    Gdiplus::PointF control_point_second(current_point.X + segment.points[i + 2], current_point.Y + segment.points[i + 3]);
+                    Gdiplus::PointF end_point(current_point.X + segment.points[i + 4], current_point.Y + segment.points[i + 5]);
+                    path.AddBezier(current_point, control_point_first, control_point_second, end_point);
+                    current_point = end_point;
+                }
             }
         }
     }

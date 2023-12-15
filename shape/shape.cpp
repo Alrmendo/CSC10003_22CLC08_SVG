@@ -334,5 +334,20 @@ void Path::render(Gdiplus::Graphics &graphics)
                 current_point = end_point;
             }
         }
+        
+        else if (segment.type == 'C')
+        {
+            for (size_t i = 0; i < segment.points.size(); i += 6)
+            {
+                if (i + 5 < segment.points.size())
+                {
+                    Gdiplus::PointF control_point_first(segment.points[i], segment.points[i + 1]);
+                    Gdiplus::PointF control_point_second(segment.points[i + 2], segment.points[i + 3]);
+                    Gdiplus::PointF end_point(segment.points[i + 4], segment.points[i + 5]);
+                    path.AddBezier(current_point, control_point_first, control_point_second, end_point);
+                    current_point = end_point;
+                }
+            }
+        }
     }
 }

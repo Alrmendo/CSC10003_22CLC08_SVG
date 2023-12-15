@@ -349,5 +349,15 @@ void Path::render(Gdiplus::Graphics &graphics)
                 }
             }
         }
+
+        else if (segment.type == 'm')
+        {
+            if (segment.points.size() > 1)
+            {
+                path.StartFigure();
+                open_point = Gdiplus::PointF(current_point.X + segment.points[0], current_point.Y + segment.points[1]);
+                current_point = open_point;
+            }
+        }
     }
 }

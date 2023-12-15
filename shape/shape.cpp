@@ -301,5 +301,18 @@ void Path::render(Gdiplus::Graphics &graphics)
                 }
             }
         }
+        
+        else if (segment.type == 'L')
+        {
+            for (size_t i = 0; i < segment.points.size(); i += 2)
+            {
+                if (i + 1 < segment.points.size())
+                {
+                    Gdiplus::PointF end_point(segment.points[i], segment.points[i + 1]);
+                    path.AddLine(current_point, end_point);
+                    current_point = end_point;
+                }
+            }
+        }
     }
 }

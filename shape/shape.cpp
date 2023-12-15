@@ -416,5 +416,11 @@ void Path::render(Gdiplus::Graphics &graphics)
                 }
             }
         }
+        
+        else if (segment.type == 'Z' || segment.type == 'z')
+        {
+            path.CloseFigure();
+            current_point = open_point;
+        }
     }
 }

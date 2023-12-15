@@ -423,4 +423,6 @@ void Path::render(Gdiplus::Graphics &graphics)
             current_point = open_point;
         }
     }
+    Gdiplus::SolidBrush fill_pen(Gdiplus::Color(fill_color.alpha, fill_color.red, fill_color.green, fill_color.blue));
+    graphics.FillPath(&fill_pen, &path);
 }

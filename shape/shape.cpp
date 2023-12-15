@@ -274,4 +274,11 @@ Path::Path(Entity entity) : Shape(entity)
 }
 void Path::render(Gdiplus::Graphics &graphics)
 {
+    Gdiplus::GraphicsState state = graphics.Save();
+    this->apply_transform(graphics);
+
+    Gdiplus::GraphicsPath path;
+    path.SetFillMode(this->fill_rule_map[this->fill_rule]);
+    Gdiplus::PointF open_point;
+    Gdiplus::PointF current_point;
 }

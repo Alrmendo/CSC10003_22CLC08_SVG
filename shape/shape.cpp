@@ -416,7 +416,7 @@ void Path::render(Gdiplus::Graphics &graphics)
                 }
             }
         }
-        
+
         else if (segment.type == 'Z' || segment.type == 'z')
         {
             path.CloseFigure();
@@ -425,4 +425,11 @@ void Path::render(Gdiplus::Graphics &graphics)
     }
     Gdiplus::SolidBrush fill_pen(Gdiplus::Color(fill_color.alpha, fill_color.red, fill_color.green, fill_color.blue));
     graphics.FillPath(&fill_pen, &path);
+    
+    if (stroke_width != 0)
+    {
+        Gdiplus::Pen stroke_pen(Gdiplus::Color(stroke_color.alpha, stroke_color.red, stroke_color.green, stroke_color.blue), stroke_width);
+        graphics.DrawPath(&stroke_pen, &path);
+    }
+    graphics.Restore(state);
 }

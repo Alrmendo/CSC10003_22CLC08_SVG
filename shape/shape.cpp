@@ -139,7 +139,6 @@ void Text::render(Gdiplus::Graphics &graphics)
     graphics.Restore(state);
 }
 
-
 // Ellipse Class
 Ellipse::Ellipse(Entity entity) : Shape(entity)
 {
@@ -281,6 +280,7 @@ void Path::render(Gdiplus::Graphics &graphics)
     path.SetFillMode(this->fill_rule_map[this->fill_rule]);
     Gdiplus::PointF open_point;
     Gdiplus::PointF current_point;
+
     for (PathSegment segment : this->separated_data)
     {
         if (segment.type == 'M')
@@ -368,7 +368,7 @@ void Path::render(Gdiplus::Graphics &graphics)
                 }
             }
         }
-        
+
         else if (segment.type == 'l')
         {
             for (size_t i = 0; i < segment.points.size(); i += 2)
@@ -423,9 +423,10 @@ void Path::render(Gdiplus::Graphics &graphics)
             current_point = open_point;
         }
     }
+
     Gdiplus::SolidBrush fill_pen(Gdiplus::Color(fill_color.alpha, fill_color.red, fill_color.green, fill_color.blue));
     graphics.FillPath(&fill_pen, &path);
-    
+
     if (stroke_width != 0)
     {
         Gdiplus::Pen stroke_pen(Gdiplus::Color(stroke_color.alpha, stroke_color.red, stroke_color.green, stroke_color.blue), stroke_width);

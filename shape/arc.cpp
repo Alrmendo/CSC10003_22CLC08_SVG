@@ -60,3 +60,47 @@ vector<double> get_arc_center(vector<double> &previous_point, double cx, double 
         that_angle += TWO_PI;
     return {center_x, center_y, this_angle, that_angle};
 }
+
+vector<vector<vector<double>>> arc_to_cubic_beziers(vector<double> &previous_point, double ellipse_radius_x, double ellipse_radius_y, double x_axis_rotation, int large_arc_flag, int sweep_flag, double next_point_x, double next_point_y)
+{
+    vector<vector<vector<double>>> curves;
+    if (ellipse_radius_x == 0 || ellipse_radius_y == 0)
+        return curves;
+    double sin_angle = sin(x_axis_rotation * TWO_PI / 360);
+    double cos_angle = cos(x_axis_rotation * TWO_PI / 360);
+    double pxp = cos_angle * (previous_point[0] - next_point_x) / 2 + sin_angle * (previous_point[1] - next_point_y) / 2;
+    double pyp = -sin_angle * (previous_point[0] - next_point_x) / 2 + cos_angle * (previous_point[1] - next_point_y) / 2;
+    if (pxp == 0 && pyp == 0)
+        return curves;
+    ellipse_radius_x = abs(ellipse_radius_x);
+    ellipse_radius_y = abs(ellipse_radius_y);
+    double lambda = pow(pxp, 2) / pow(ellipse_radius_x, 2) + pow(pyp, 2) / pow(ellipse_radius_y, 2);
+    if (lambda > 1)
+    {
+        ellipse_radius_x *= sqrt(lambda);
+        ellipse_radius_y *= sqrt(lambda);
+    }
+    vector<double> result = get_arc_center(previous_point, next_point_x, next_point_y, ellipse_radius_x, ellipse_radius_y, large_arc_flag, sweep_flag, sin_angle, cos_angle, pxp, pyp);
+    double center_x = result[0];
+    double center_y = result[1];
+    double this_angle = result[2];
+    double that_angle = result[3];
+    double ratio = abs(that_angle) / (TWO_PI / 4);
+    if (abs(1.0 - ratio) < 0.0000001)
+        ratio = 1.0;
+    int segments = max(static_cast<int>(ceil(ratio)), 1);
+    that_angle /= segments;
+    for (int i = 0; i < segments; i += 1)
+    {
+        curves.push_back(approximate_unit_arc(this_angle, that_angle));
+        this_angle += that_angle;
+    }
+    for (auto &curve : curves)
+    {
+        auto mapped_curve_0 = map_to_ellipse(curve[0], ellipse_radius_x, ellipse_radius_y, cos_angle, sin_angle, center_x, center_y);
+        auto mapped_curve_1 = map_to_ellipse(curve[1], ellipse_radius_x, ellipse_radius_y, cos_angle, sin_angle, center_x, center_y);
+        auto mapped_curve_2 = map_to_ellipse(curve[2], ellipse_radius_x, ellipse_radius_y, cos_angle, sin_angle, center_x, center_y);
+        curve = {mapped_curve_0, mapped_curve_1, mapped_curve_2};
+    }
+    return curves;
+}

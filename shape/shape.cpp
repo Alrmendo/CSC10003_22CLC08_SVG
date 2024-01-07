@@ -51,7 +51,12 @@ void Shape::apply_transform(Gdiplus::Graphics &graphics)
     for (const auto &transform : this->transforms)
     {
         if (transform.type == "translate")
-            graphics.TranslateTransform(transform.values[0], transform.values[1]);
+        {
+            if (transform.values.size() > 1)
+                graphics.TranslateTransform(transform.values[0], transform.values[1]);
+            else
+                graphics.TranslateTransform(transform.values[0], 0);
+        }
         else if (transform.type == "rotate")
             graphics.RotateTransform(transform.values[0]);
         else if (transform.type == "scale")
@@ -60,6 +65,76 @@ void Shape::apply_transform(Gdiplus::Graphics &graphics)
                 graphics.ScaleTransform(transform.values[0], transform.values[1]);
             else
                 graphics.ScaleTransform(transform.values[0], transform.values[0]);
+        }
+        else if (transform.type == "matrix")
+        {
+            if (transform.values.size() > 5)
+            {
+                Gdiplus::Matrix matrix(transform.values[0], transform.values[1], transform.values[2], transform.values[3], transform.values[4], transform.values[5]);
+                graphics.MultiplyTransform(&matrix);
+            }
+        }
+    }
+}
+
+void Shape::apply_gradient_transform(Gdiplus::LinearGradientBrush &brush, vector<Transform> gradient_transform)
+{
+    for (const auto &transform : gradient_transform)
+    {
+        if (transform.type == "translate")
+        {
+            if (transform.values.size() > 1)
+                brush.TranslateTransform(transform.values[0], transform.values[1]), Gdiplus::MatrixOrderAppend;
+            else
+                brush.TranslateTransform(transform.values[0], 0, Gdiplus::MatrixOrderAppend);
+        }
+        else if (transform.type == "rotate")
+            brush.RotateTranform(transform.values[0], Gdiplus::MatrixOrderAppend);
+        else if (transform.type == "scale")
+        {
+            if (transform.values.size() > 1)
+                brush.ScaleTransform(transform.values[0], transform.values[1], Gdiplus::MatrixOrderAppend);
+            else
+                brush.ScaleTransform(transform.values[0], transform.values[0], Gdiplus::MatrixOrderAppend);
+        }
+        else if (transform.type == "matrix")
+        {
+            if (transform.values.size() > 5)
+            {
+                Gdiplus::Matrix matrix(transform.values[0], transform.values[1], transform.values[2], transform.values[3], transform.values[4], transform.values[5]);
+                brush.MultiplyTransform(&matrix, Gdiplus::MatrixOrderAppend);
+            }
+        }
+    }
+}
+
+void Shape::apply_gradient_transform(Gdiplus::PathGradientBrush &brush, vector<Transform> gradient_transform)
+{
+    for (const auto &transform : gradient_transform)
+    {
+        if (transform.type == "translate")
+        {
+            if (transform.values.size() > 1)
+                brush.TranslateTransform(transform.values[0], transform.values[1], Gdiplus::MatrixOrderAppend);
+            else
+                brush.TranslateTransform(transform.values[0], 0, Gdiplus::MatrixOrderAppend);
+        }
+        else if (transform.type == "rotate")
+            brush.RotateTransform(transform.values[0], Gdiplus::MatrixOrderAppend);
+        else if (transform.type == "scale")
+        {
+            if (transform.values.size() > 1)
+                brush.ScaleTransform(transform.values[0], transform.values[1], Gdiplus::MatrixOrderAppend);
+            else
+                brush.ScaleTransform(transform.values[0], transform.values[0], Gdiplus::MatrixOrderAppend);
+        }
+        else if (transform.type == "matrix")
+        {
+            if (transform.values.size() > 5)
+            {
+                Gdiplus::Matrix matrix(transform.values[0], transform.values[1], transform.values[2], transform.values[3], transform.values[4], transform.values[5]);
+                brush.MultiplyTransform(&matrix, Gdiplus::MatrixOrderAppend);
+            }
         }
     }
 }
@@ -282,23 +357,26 @@ void Path::render(Gdiplus::Graphics &graphics)
 
     Gdiplus::GraphicsPath path;
     path.SetFillMode(this->fill_rule_map[this->fill_rule]);
+
     Gdiplus::PointF open_point;
     Gdiplus::PointF current_point;
+    Gdiplus::PointF previous_control_point;
+    Gdiplus::PointF previous_quad_point;
 
-    for (PathSegment segment : this->separated_data)
+    for (size_t k = 0; k < this->separated_data.size(); k += 1)
     {
-        if (segment.type == 'M')
+        if (separated_data[k].type == 'M')
         {
-            if (segment.points.size() > 1)
+            if (separated_data[k].points.size() > 1)
             {
                 path.StartFigure();
-                open_point = Gdiplus::PointF(segment.points[0], segment.points[1]);
+                open_point = Gdiplus::PointF(separated_data[k].points[0], separated_data[k].points[1]);
                 current_point = open_point;
-                for (size_t i = 2; i < segment.points.size(); i += 2)
+                for (size_t i = 2; i < separated_data[k].points.size(); i += 2)
                 {
-                    if (i + 1 < segment.points.size())
+                    if (i + 1 < separated_data[k].points.size())
                     {
-                        Gdiplus::PointF end_point(segment.points[i], segment.points[i + 1]);
+                        Gdiplus::PointF end_point(separated_data[k].points[i], separated_data[k].points[i + 1]);
                         path.AddLine(current_point, end_point);
                         current_point = end_point;
                     }
@@ -306,66 +384,151 @@ void Path::render(Gdiplus::Graphics &graphics)
             }
         }
 
-        else if (segment.type == 'L')
+        else if (separated_data[k].type == 'L')
         {
-            for (size_t i = 0; i < segment.points.size(); i += 2)
+            for (size_t i = 0; i < separated_data[k].points.size(); i += 2)
             {
-                if (i + 1 < segment.points.size())
+                if (i + 1 < separated_data[k].points.size())
                 {
-                    Gdiplus::PointF end_point(segment.points[i], segment.points[i + 1]);
+                    Gdiplus::PointF end_point(separated_data[k].points[i], separated_data[k].points[i + 1]);
                     path.AddLine(current_point, end_point);
                     current_point = end_point;
                 }
             }
         }
 
-        else if (segment.type == 'H')
+        else if (separated_data[k].type == 'H')
         {
-            for (size_t i = 0; i < segment.points.size(); i += 1)
+            for (size_t i = 0; i < separated_data[k].points.size(); i += 1)
             {
-                Gdiplus::PointF end_point(segment.points[i], current_point.Y);
+                Gdiplus::PointF end_point(separated_data[k].points[i], current_point.Y);
                 path.AddLine(current_point, end_point);
                 current_point = end_point;
             }
         }
 
-        else if (segment.type == 'V')
+        else if (separated_data[k].type == 'V')
         {
-            for (size_t i = 0; i < segment.points.size(); i += 1)
+            for (size_t i = 0; i < separated_data[k].points.size(); i += 1)
             {
-                Gdiplus::PointF end_point(current_point.X, segment.points[i]);
+                Gdiplus::PointF end_point(current_point.X, separated_data[k].points[i]);
                 path.AddLine(current_point, end_point);
                 current_point = end_point;
             }
         }
 
-        else if (segment.type == 'C')
+        else if (separated_data[k].type == 'C')
         {
-            for (size_t i = 0; i < segment.points.size(); i += 6)
+            for (size_t i = 0; i < separated_data[k].points.size(); i += 6)
             {
-                if (i + 5 < segment.points.size())
+                if (i + 5 < separated_data[k].points.size())
                 {
-                    Gdiplus::PointF control_point_first(segment.points[i], segment.points[i + 1]);
-                    Gdiplus::PointF control_point_second(segment.points[i + 2], segment.points[i + 3]);
-                    Gdiplus::PointF end_point(segment.points[i + 4], segment.points[i + 5]);
+                    Gdiplus::PointF control_point_first(separated_data[k].points[i], separated_data[k].points[i + 1]);
+                    Gdiplus::PointF control_point_second(separated_data[k].points[i + 2], separated_data[k].points[i + 3]);
+                    Gdiplus::PointF end_point(separated_data[k].points[i + 4], separated_data[k].points[i + 5]);
                     path.AddBezier(current_point, control_point_first, control_point_second, end_point);
+                    previous_control_point = control_point_second;
                     current_point = end_point;
                 }
             }
         }
 
-        else if (segment.type == 'm')
+        else if (separated_data[k].type == 'S')
         {
-            if (segment.points.size() > 1)
+            Gdiplus::PointF control_point_first = current_point;
+            if (k > 1 && (tolower(separated_data[k - 1].type) == 'c' || tolower(separated_data[k - 1].type) == 's'))
+                control_point_first = Gdiplus::PointF(2 * current_point.X - previous_control_point.X, 2 * current_point.Y - previous_control_point.Y);
+
+            for (size_t i = 0; i < separated_data[k].points.size(); i += 4)
+            {
+                if (i + 3 < separated_data[k].points.size())
+                {
+                    Gdiplus::PointF control_point_second(separated_data[k].points[i], separated_data[k].points[i + 1]);
+                    Gdiplus::PointF end_point(separated_data[k].points[i + 2], separated_data[k].points[i + 3]);
+                    path.AddBezier(current_point, control_point_first, control_point_second, end_point);
+                    previous_control_point = control_point_second;
+                    current_point = end_point;
+                }
+            }
+        }
+
+        else if (separated_data[k].type == 'A')
+        {
+            for (size_t j = 0; j < separated_data[k].points.size(); j += 7)
+            {
+                if (j + 6 < separated_data[k].points.size())
+                {
+                    vector<double> previous_point = {current_point.X, current_point.Y};
+                    vector<vector<vector<double>>> curves = arc_to_cubic_beziers(previous_point, separated_data[k].points[j + 0], separated_data[k].points[j + 1], separated_data[k].points[j + 2], separated_data[k].points[j + 3], separated_data[k].points[j + 4], separated_data[k].points[j + 5], separated_data[k].points[j + 6]);
+                    for (const auto &curve : curves)
+                    {
+                        for (size_t i = 0; i < curve.size(); i += 3)
+                        {
+                            if (i + 2 < curve.size())
+                            {
+                                Gdiplus::PointF control_point1(curve[i][0], curve[i][1]);
+                                Gdiplus::PointF control_point2(curve[i + 1][0], curve[i + 1][1]);
+                                Gdiplus::PointF end_point(curve[i + 2][0], curve[i + 2][1]);
+                                path.AddBezier(current_point, control_point1, control_point2, end_point);
+                                current_point = end_point;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        else if (separated_data[k].type == 'Q')
+        {
+            for (size_t i = 0; i < separated_data[k].points.size(); i += 4)
+            {
+                if (i + 3 < separated_data[k].points.size())
+                {
+                    Gdiplus::PointF control_point_first((current_point.X + 2 * separated_data[k].points[i]) / 3, (current_point.Y + 2 * separated_data[k].points[i + 1]) / 3);
+                    Gdiplus::PointF control_point_second((separated_data[k].points[i + 2] + 2 * separated_data[k].points[i]) / 3, (separated_data[k].points[i + 3] + 2 * separated_data[k].points[i + 1]) / 3);
+                    Gdiplus::PointF end_point(separated_data[k].points[i + 2], separated_data[k].points[i + 3]);
+                    path.AddBezier(current_point, control_point_first, control_point_second, end_point);
+                    previous_quad_point = Gdiplus::PointF(separated_data[k].points[i], separated_data[k].points[i + 1]);
+                    current_point = end_point;
+                }
+            }
+        }
+
+        else if (separated_data[k].type == 'T')
+        {
+            double quad_X = current_point.X;
+            double quad_Y = current_point.Y;
+            if (k > 1 && (tolower(separated_data[k - 1].type) == 'q' || tolower(separated_data[k - 1].type) == 't'))
+            {
+                quad_X = 2 * current_point.X - previous_quad_point.X;
+                quad_Y = 2 * current_point.Y - previous_quad_point.Y;
+            }
+            for (size_t i = 0; i < separated_data[k].points.size(); i += 2)
+            {
+                if (i + 1 < separated_data[k].points.size())
+                {
+                    Gdiplus::PointF control_point_first((current_point.X + 2 * quad_X) / 3, (current_point.Y + 2 * quad_Y) / 3);
+                    Gdiplus::PointF control_point_second((separated_data[k].points[i] + 2 * quad_X) / 3, (separated_data[k].points[i + 1] + 2 * quad_Y) / 3);
+                    Gdiplus::PointF end_point(separated_data[k].points[i], separated_data[k].points[i + 1]);
+                    path.AddBezier(current_point, control_point_first, control_point_second, end_point);
+                    previous_quad_point = Gdiplus::PointF(quad_X, quad_Y);
+                    current_point = end_point;
+                }
+            }
+        }
+
+        else if (separated_data[k].type == 'm')
+        {
+            if (separated_data[k].points.size() > 1)
             {
                 path.StartFigure();
-                open_point = Gdiplus::PointF(current_point.X + segment.points[0], current_point.Y + segment.points[1]);
+                open_point = Gdiplus::PointF(current_point.X + separated_data[k].points[0], current_point.Y + separated_data[k].points[1]);
                 current_point = open_point;
-                for (size_t i = 2; i < segment.points.size(); i += 2)
+                for (size_t i = 2; i < separated_data[k].points.size(); i += 2)
                 {
-                    if (i + 1 < segment.points.size())
+                    if (i + 1 < separated_data[k].points.size())
                     {
-                        Gdiplus::PointF end_point(current_point.X + segment.points[i], current_point.Y + segment.points[i + 1]);
+                        Gdiplus::PointF end_point(current_point.X + separated_data[k].points[i], current_point.Y + separated_data[k].points[i + 1]);
                         path.AddLine(current_point, end_point);
                         current_point = end_point;
                     }
@@ -373,63 +536,193 @@ void Path::render(Gdiplus::Graphics &graphics)
             }
         }
 
-        else if (segment.type == 'l')
+        else if (separated_data[k].type == 'l')
         {
-            for (size_t i = 0; i < segment.points.size(); i += 2)
+            for (size_t i = 0; i < separated_data[k].points.size(); i += 2)
             {
-                if (i + 1 < segment.points.size())
+                if (i + 1 < separated_data[k].points.size())
                 {
-                    Gdiplus::PointF end_point(current_point.X + segment.points[i], current_point.Y + segment.points[i + 1]);
+                    Gdiplus::PointF end_point(current_point.X + separated_data[k].points[i], current_point.Y + separated_data[k].points[i + 1]);
                     path.AddLine(current_point, end_point);
                     current_point = end_point;
                 }
             }
         }
 
-        else if (segment.type == 'h')
+        else if (separated_data[k].type == 'h')
         {
-            for (size_t i = 0; i < segment.points.size(); i += 1)
+            for (size_t i = 0; i < separated_data[k].points.size(); i += 1)
             {
-                Gdiplus::PointF end_point(current_point.X + segment.points[i], current_point.Y);
+                Gdiplus::PointF end_point(current_point.X + separated_data[k].points[i], current_point.Y);
                 path.AddLine(current_point, end_point);
                 current_point = end_point;
             }
         }
 
-        else if (segment.type == 'v')
+        else if (separated_data[k].type == 'v')
         {
-            for (size_t i = 0; i < segment.points.size(); i += 1)
+            for (size_t i = 0; i < separated_data[k].points.size(); i += 1)
             {
-                Gdiplus::PointF end_point(current_point.X, current_point.Y + segment.points[i]);
+                Gdiplus::PointF end_point(current_point.X, current_point.Y + separated_data[k].points[i]);
                 path.AddLine(current_point, end_point);
                 current_point = end_point;
             }
         }
 
-        else if (segment.type == 'c')
+        else if (separated_data[k].type == 'c')
         {
-            for (size_t i = 0; i < segment.points.size(); i += 6)
+            for (size_t i = 0; i < separated_data[k].points.size(); i += 6)
             {
-                if (i + 5 < segment.points.size())
+                if (i + 5 < separated_data[k].points.size())
                 {
-                    Gdiplus::PointF control_point_first(current_point.X + segment.points[i], current_point.Y + segment.points[i + 1]);
-                    Gdiplus::PointF control_point_second(current_point.X + segment.points[i + 2], current_point.Y + segment.points[i + 3]);
-                    Gdiplus::PointF end_point(current_point.X + segment.points[i + 4], current_point.Y + segment.points[i + 5]);
+                    Gdiplus::PointF control_point_first(current_point.X + separated_data[k].points[i], current_point.Y + separated_data[k].points[i + 1]);
+                    Gdiplus::PointF control_point_second(current_point.X + separated_data[k].points[i + 2], current_point.Y + separated_data[k].points[i + 3]);
+                    Gdiplus::PointF end_point(current_point.X + separated_data[k].points[i + 4], current_point.Y + separated_data[k].points[i + 5]);
                     path.AddBezier(current_point, control_point_first, control_point_second, end_point);
+                    previous_control_point = control_point_second;
                     current_point = end_point;
                 }
             }
         }
 
-        else if (segment.type == 'Z' || segment.type == 'z')
+        else if (separated_data[k].type == 's')
+        {
+            Gdiplus::PointF control_point_first = current_point;
+            if (k > 1 && (tolower(separated_data[k - 1].type) == 'c' || tolower(separated_data[k - 1].type) == 's'))
+                control_point_first = Gdiplus::PointF(2 * current_point.X - previous_control_point.X, 2 * current_point.Y - previous_control_point.Y);
+
+            for (size_t i = 0; i < separated_data[k].points.size(); i += 4)
+            {
+                if (i + 3 < separated_data[k].points.size())
+                {
+                    Gdiplus::PointF control_point_second(current_point.X + separated_data[k].points[i], current_point.Y + separated_data[k].points[i + 1]);
+                    Gdiplus::PointF end_point(current_point.X + separated_data[k].points[i + 2], current_point.Y + separated_data[k].points[i + 3]);
+                    path.AddBezier(current_point, control_point_first, control_point_second, end_point);
+                    previous_control_point = control_point_second;
+                    current_point = end_point;
+                }
+            }
+        }
+
+        else if (separated_data[k].type == 'a')
+        {
+            for (size_t j = 0; j < separated_data[k].points.size(); j += 7)
+            {
+                if (j + 6 < separated_data[k].points.size())
+                {
+                    vector<double> previous_point = {current_point.X, current_point.Y};
+                    vector<vector<vector<double>>> curves = arc_to_cubic_beziers(previous_point, separated_data[k].points[j + 0], separated_data[k].points[j + 1], separated_data[k].points[j + 2], separated_data[k].points[j + 3], separated_data[k].points[j + 4], separated_data[k].points[j + 5] + previous_point[0], separated_data[k].points[j + 6] + previous_point[1]);
+                    for (const auto &curve : curves)
+                    {
+                        for (size_t i = 0; i < curve.size(); i += 3)
+                        {
+                            if (i + 2 < curve.size())
+                            {
+                                Gdiplus::PointF control_point1(curve[i][0], curve[i][1]);
+                                Gdiplus::PointF control_point2(curve[i + 1][0], curve[i + 1][1]);
+                                Gdiplus::PointF end_point(curve[i + 2][0], curve[i + 2][1]);
+                                path.AddBezier(current_point, control_point1, control_point2, end_point);
+                                current_point = end_point;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        else if (separated_data[k].type == 'q')
+        {
+            for (size_t i = 0; i < separated_data[k].points.size(); i += 4)
+            {
+                if (i + 3 < separated_data[k].points.size())
+                {
+                    double x1 = separated_data[k].points[i] + current_point.X;
+                    double y1 = separated_data[k].points[i + 1] + current_point.Y;
+                    double x2 = separated_data[k].points[i + 2] + current_point.X;
+                    double y2 = separated_data[k].points[i + 3] + current_point.Y;
+                    Gdiplus::PointF control_point_first((current_point.X + 2 * x1) / 3, (current_point.Y + 2 * y1) / 3);
+                    Gdiplus::PointF control_point_second((x2 + 2 * x1) / 3, (y2 + 2 * y1) / 3);
+                    Gdiplus::PointF end_point(x2, y2);
+                    path.AddBezier(current_point, control_point_first, control_point_second, end_point);
+                    previous_quad_point = Gdiplus::PointF(x1, y1);
+                    current_point = end_point;
+                }
+            }
+        }
+
+        else if (separated_data[k].type == 't')
+        {
+            double quad_X = current_point.X;
+            double quad_Y = current_point.Y;
+            if (k > 1 && (tolower(separated_data[k - 1].type) == 'q' || tolower(separated_data[k - 1].type) == 't'))
+            {
+                quad_X = 2 * current_point.X - previous_quad_point.X;
+                quad_Y = 2 * current_point.Y - previous_quad_point.Y;
+            }
+            for (size_t i = 0; i < separated_data[k].points.size(); i += 2)
+            {
+                if (i + 1 < separated_data[k].points.size())
+                {
+                    double x1 = separated_data[k].points[i] + current_point.X;
+                    double y1 = separated_data[k].points[i + 1] + current_point.Y;
+                    Gdiplus::PointF control_point_first((current_point.X + 2 * quad_X) / 3, (current_point.Y + 2 * quad_Y) / 3);
+                    Gdiplus::PointF control_point_second((x1 + 2 * quad_X) / 3, (y1 + 2 * quad_Y) / 3);
+                    Gdiplus::PointF end_point(x1, y1);
+                    path.AddBezier(current_point, control_point_first, control_point_second, end_point);
+                    previous_quad_point = Gdiplus::PointF(quad_X, quad_Y);
+                    current_point = end_point;
+                }
+            }
+        }
+
+        else if (separated_data[k].type == 'Z' || separated_data[k].type == 'z')
         {
             path.CloseFigure();
             current_point = open_point;
         }
     }
+    if (this->fill_gradient_id.empty())
+    {
+        Gdiplus::SolidBrush fill_pen(Gdiplus::Color(fill_color.alpha, fill_color.red, fill_color.green, fill_color.blue));
+        graphics.FillPath(&fill_pen, &path);
+    }
+    else
+    {
+        GradientColor gradient_color = gradient_system.find_gradient_by_id(this->fill_gradient_id);
+        vector<Gdiplus::Color> colors;
+        if (!gradient_color.stop_colors.empty())
+        {
+            colors.push_back(Gdiplus::Color(gradient_color.stop_colors.front().alpha, gradient_color.stop_colors.front().red, gradient_color.stop_colors.front().green, gradient_color.stop_colors.front().blue));
+            for (const Color &color : gradient_color.stop_colors)
+                colors.push_back(Gdiplus::Color(color.alpha, color.red, color.green, color.blue));
+            colors.push_back(Gdiplus::Color(gradient_color.stop_colors.back().alpha, gradient_color.stop_colors.back().red, gradient_color.stop_colors.back().green, gradient_color.stop_colors.front().blue));
+        }
+        else
+            colors.push_back(Gdiplus::Color(0, 0, 0, 0));
 
-    Gdiplus::SolidBrush fill_pen(Gdiplus::Color(fill_color.alpha, fill_color.red, fill_color.green, fill_color.blue));
-    graphics.FillPath(&fill_pen, &path);
+        if (gradient_color.type == "lineargradient")
+        {
+            Gdiplus::PointF start_point(gradient_color.attributes.find("x1") != gradient_color.attributes.end() ? stof(gradient_color.attributes["x1"]) : 0, gradient_color.attributes.find("y1") != gradient_color.attributes.end() ? stof(gradient_color.attributes["y1"]) : 0);
+            Gdiplus::PointF end_point(gradient_color.attributes.find("x2") != gradient_color.attributes.end() ? stof(gradient_color.attributes["x2"]) : 0, gradient_color.attributes.find("y2") != gradient_color.attributes.end() ? stof(gradient_color.attributes["y2"]) : 0);
+            Gdiplus::LinearGradientBrush linear_gradient_brush(start_point, end_point, colors.front(), colors.back());
+            this->apply_gradient_transform(linear_gradient_brush, gradient_color.gradient_transforms);
+            linear_gradient_brush.SetWrapMode(Gdiplus::WrapModeTileFlipXY);
+            linear_gradient_brush.SetInterpolationColors(&colors[0], &gradient_color.offset[0], gradient_color.offset.size());
+            graphics.FillPath(&linear_gradient_brush, &path);
+        }
+        else if (gradient_color.type == "radialgradient")
+        {
+            float cx = gradient_color.attributes.find("cx") != gradient_color.attributes.end() ? stof(gradient_color.attributes["cx"]) : 0;
+            float cy = gradient_color.attributes.find("cy") != gradient_color.attributes.end() ? stof(gradient_color.attributes["cy"]) : 0;
+            float r = gradient_color.attributes.find("r") != gradient_color.attributes.end() ? stof(gradient_color.attributes["r"]) : 0;
+            Gdiplus::PointF start_point(cx, cy);
+            Gdiplus::PointF end_point(cx + r, cy + r);
+            Gdiplus::LinearGradientBrush linear_gradient_brush(start_point, end_point, colors.front(), colors.back());
+            this->apply_gradient_transform(linear_gradient_brush, gradient_color.gradient_transforms);
+            linear_gradient_brush.SetWrapMode(Gdiplus::WrapModeTileFlipXY);
+            graphics.FillPath(&linear_gradient_brush, &path);
+        }
+    }
 
     if (stroke_width != 0)
     {

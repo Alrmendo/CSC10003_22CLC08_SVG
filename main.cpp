@@ -205,7 +205,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpCmdLine, INT iCmdShow
     svg_parser = SvgParser(filename);
     svg_parser.parse_file();
     svg_data = svg_parser.get_data();
-
+    gradient_system = GradientSystem(svg_parser.get_defs());
+    
     HWND window;
     MSG message;
     WNDCLASS window_class;
@@ -252,7 +253,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpCmdLine, INT iCmdShow
         SendMessage(window, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
         SendMessage(window, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
         // Show and update the window
-        ShowWindow(window, SW_SHOWMAXIMIZED);
+        ShowWindow(window, iCmdShow);
+        // ShowWindow(window, SW_SHOWMAXIMIZED);
         UpdateWindow(window);
     }
 

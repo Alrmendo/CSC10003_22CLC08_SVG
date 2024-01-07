@@ -17,5 +17,7 @@ public:
     Color(const string &);
     Color(const string &, unordered_map<string, string> &);
     void hex_to_rgb(const string &);
+    bool operator!=(const Color &);
+    bool operator==(const Color &);
 };
 #endif

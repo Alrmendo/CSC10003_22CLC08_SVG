@@ -31,8 +31,6 @@ namespace Shapes
         Shape(Entity);
         void apply_transform(Gdiplus::Graphics &);
         void apply_gradient_transform(Gdiplus::LinearGradientBrush &, vector<Transform>);
-        void apply_gradient_transform(Gdiplus::PathGradientBrush &, vector<Transform>);
-
         virtual void render(Gdiplus::Graphics &) = 0;
     };
 

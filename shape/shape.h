@@ -3,17 +3,14 @@
 
 #include <windows.h>
 #include <gdiplus.h>
+#include <algorithm>
 #include "color.h"
+#include "arc.h"
+#include "gradient.h"
 #include "../reader/read_file.h"
 
 namespace Shapes
 {
-    struct Transform
-    {
-        string type;
-        vector<float> values;
-    };
-
     class Shape
     {
     protected:
@@ -26,11 +23,16 @@ namespace Shapes
             {"nonzero", Gdiplus::FillModeWinding},
             {"evenodd", Gdiplus::FillModeAlternate},
         };
+        string fill_gradient_id;
+        string stroke_gradient_id;
 
     public:
         Shape();
         Shape(Entity);
         void apply_transform(Gdiplus::Graphics &);
+        void apply_gradient_transform(Gdiplus::LinearGradientBrush &, vector<Transform>);
+        void apply_gradient_transform(Gdiplus::PathGradientBrush &, vector<Transform>);
+
         virtual void render(Gdiplus::Graphics &) = 0;
     };
 
@@ -132,7 +134,7 @@ namespace Shapes
     {
     protected:
         vector<PathSegment> separated_data;
-        
+
     public:
         Path();
         Path(Entity);

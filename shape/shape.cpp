@@ -8,7 +8,6 @@ Shape::Shape()
     this->stroke_width = 0;
     this->stroke_color = Color(255, 0, 0, 0);
     this->fill_color = Color(255, 0, 0, 0);
-    this->transforms.clear();
 }
 Shape::Shape(Entity entity)
 {
@@ -16,10 +15,15 @@ Shape::Shape(Entity entity)
         this->stroke_width = entity.attributes.find("stroke-width") != entity.attributes.end() ? stof(entity.attributes["stroke-width"]) : 1;
     else
         this->stroke_width = 0;
+    this->fill_rule = (entity.attributes.find("fill-rule") != entity.attributes.end()) ? entity.attributes["fill-rule"] : "nonzero";
 
     this->stroke_color = Color("stroke", entity.attributes);
+    if (this->stroke_color == Color(-1, -1, -1))
+        this->stroke_gradient_id = entity.attributes["stroke"];
+
     this->fill_color = Color("fill", entity.attributes);
-    this->fill_rule = (entity.attributes.find("fill-rule") != entity.attributes.end()) ? entity.attributes["fill-rule"] : "nonzero";
+    if (this->fill_color == Color(-1, -1, -1))
+        this->fill_gradient_id = entity.attributes["fill"];
 
     if (entity.attributes.find("transform") != entity.attributes.end())
     {

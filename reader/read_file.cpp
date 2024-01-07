@@ -1,44 +1,64 @@
 #include "read_file.h"
 
-void SvgParser::traverse_node(const xml_node<> *node, Entity &entity, int depth)
+void SvgParser::traverse_defs(const xml_node<> *defs_node, Entity &defs_entity, int depth)
 {
-    entity.type = to_lower(node->name());
+    defs_entity.type = to_lower(defs_node->name());
+    defs_entity.depth = depth;
 
-    for (const xml_attribute<> *attr = node->first_attribute(); attr; attr = attr->next_attribute())
-    {
-        string attr_value = replace_comma_with_space(attr->value());
-        if (to_lower(attr->name()) == "d")
-            attr_value = add_space_between_char_and_number(attr_value);
-        else
-            attr_value = to_lower(attr_value);
-        if (to_lower(attr->name()) == "style")
-        {
-            istringstream style_stream(attr_value);
-            string vessel;
-            while (getline(style_stream, vessel, ';'))
-            {
-                size_t colon_position = vessel.find(':');
-                if (colon_position != string::npos)
-                {
-                    string property = vessel.substr(0, colon_position);
-                    string value = vessel.substr(colon_position + 1);
-                    entity.attributes[format_text(property)] = format_text(value);
-                }
-            }
-        }
-        entity.attributes[to_lower(attr->name())] = format_text(attr_value);
-    }
-
-    entity.text_content = format_text(node->value());
-    entity.depth = depth;
-
-    for (const xml_node<> *child = node->first_node(); child; child = child->next_sibling())
+    for (const xml_node<> *child = defs_node->first_node(); child; child = child->next_sibling())
     {
         if (child->name() && child->name_size() > 0)
         {
             Entity child_entity;
             traverse_node(child, child_entity, depth + 1);
-            entity.children.push_back(child_entity);
+            defs_entity.children.push_back(child_entity);
+        }
+    }
+}
+void SvgParser::traverse_node(const xml_node<> *node, Entity &entity, int depth)
+{
+    entity.type = to_lower(node->name());
+    entity.depth = depth;
+
+    if (entity.type == "defs")
+        traverse_defs(node, this->defs, depth);
+    else
+    {
+        for (const xml_attribute<> *attr = node->first_attribute(); attr; attr = attr->next_attribute())
+        {
+            string attr_value = replace_comma_with_space(attr->value());
+            if (to_lower(attr->name()) == "d")
+                attr_value = add_space_between_char_and_number(attr_value);
+            else
+                attr_value = to_lower(attr_value);
+            if (to_lower(attr->name()) == "style")
+            {
+                istringstream style_stream(attr_value);
+                string vessel;
+                while (getline(style_stream, vessel, ';'))
+                {
+                    size_t colon_position = vessel.find(':');
+                    if (colon_position != string::npos)
+                    {
+                        string property = vessel.substr(0, colon_position);
+                        string value = vessel.substr(colon_position + 1);
+                        entity.attributes[format_text(property)] = format_text(value);
+                    }
+                }
+            }
+            entity.attributes[to_lower(attr->name())] = format_text(attr_value);
+        }
+
+        entity.text_content = format_text(node->value());
+
+        for (const xml_node<> *child = node->first_node(); child; child = child->next_sibling())
+        {
+            if (child->name() && child->name_size() > 0)
+            {
+                Entity child_entity;
+                traverse_node(child, child_entity, depth + 1);
+                entity.children.push_back(child_entity);
+            }
         }
     }
 }
@@ -63,7 +83,6 @@ void SvgParser::parse_file()
     }
     file.close();
 }
-
 void SvgParser::print_data() const
 {
     vector<Entity> stack;
@@ -104,7 +123,6 @@ void SvgParser::print_data() const
             stack.push_back(*iter);
     }
 }
-
 SvgParser::SvgParser(const string &filename)
 {
     this->filename = filename;
@@ -113,6 +131,10 @@ SvgParser::SvgParser(const string &filename)
 Entity SvgParser::get_data()
 {
     return this->data;
+}
+Entity SvgParser::get_defs()
+{
+    return this->defs;
 }
 
 string to_lower(const string &input)
@@ -139,15 +161,52 @@ string replace_comma_with_space(const string &input)
 string add_space_between_char_and_number(const string &input)
 {
     string vessel;
-    for (size_t i = 0; i < input.size() - 1; i += 1)
+    bool already_dot = false;
+    bool arc_flag = false;
+    int count_element = 0;
+
+    for (size_t i = 0; i < input.size(); i += 1)
     {
-        vessel.push_back(input[i]);
-        if (isalpha(input[i]) && tolower(input[i]) != 'e')
+        if (!isdigit(input[i]) && input[i] != '.')
+            already_dot = false;
+        if (arc_flag && count_element >= 3)
+        {
+            while (isspace(input[i]))
+                i += 1;
+            vessel.push_back(input[i]);
             vessel.push_back(' ');
-        else if (isdigit(input[i]) && input[i + 1] != '.' && tolower(input[i + 1]) != 'e' && !isdigit(input[i + 1]))
+            i += 1;
+            while (isspace(input[i]))
+                i += 1;
+            vessel.push_back(input[i]);
             vessel.push_back(' ');
+            i += 1;
+            count_element = -2;
+        }
+        if (isalpha(input[i]) && input[i] != 'e')
+        {
+            vessel.push_back(' ');
+            vessel.push_back(input[i]);
+            vessel.push_back(' ');
+            count_element = 0;
+            arc_flag = (tolower(input[i]) == 'a') ? true : false;
+        }
+        else
+        {
+            if ((input[i] == '-' && (vessel.back() != 'e' && !isspace(vessel.back()))) || (input[i] == '.' && already_dot))
+            {
+                vessel.push_back(' ');
+                already_dot = false;
+                if (arc_flag)
+                    count_element += 1;
+            }
+            else if (arc_flag && isspace(input[i]) && !isspace(vessel.back()))
+                count_element += 1;
+            vessel.push_back(input[i]);
+            if (vessel.back() == '.')
+                already_dot = true;
+        }
     }
-    vessel.push_back(input.back());
     return vessel;
 }
 
@@ -163,10 +222,26 @@ string format_text(const string &input)
         {
             if (isspace(input[i]) && isspace(input[i + 1]))
                 continue;
-
             vessel.push_back(input[i]);
         }
         vessel.push_back(input[last_non_space]);
     }
     return vessel;
 }
+
+string remove_percent(const string &input)
+{
+    if (input.back() == '%')
+    {
+        istringstream stream(input.substr(0, input.find("%")));
+        double vessel;
+        stream >> vessel;
+        vessel /= 100;
+        return to_string(vessel);
+    }
+    return input;
+}
+
+string filename = "images/vessels/vessel-02.svg";
+SvgParser svg_parser(filename);
+Entity svg_data;

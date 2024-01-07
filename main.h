@@ -10,11 +10,6 @@ void render_file(HDC &, Entity &, PAINTSTRUCT &);
 LRESULT CALLBACK HandleMessage(HWND, UINT, WPARAM, LPARAM);
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, INT);
 
-// Global variables for render
-string filename = "images/vessels/vessel-02.svg";
-SvgParser svg_parser(filename);
-Entity svg_data;
-
 // Navigation
 double zoom_scale = 1;
 Gdiplus::PointF scroll_offset(0, 0);

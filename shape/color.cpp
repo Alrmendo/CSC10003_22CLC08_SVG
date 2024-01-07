@@ -1,5 +1,18 @@
 #include "color.h"
 
+bool Color::operator!=(const Color &other)
+{
+    if (this->red == other.red && this->green == other.green && this->blue == other.blue)
+        return false;
+    return true;
+}
+bool Color::operator==(const Color &other)
+{
+    if (this->red == other.red && this->green == other.green && this->blue == other.blue)
+        return true;
+    return false;
+}
+
 Color::Color()
 {
     this->alpha = 255;
@@ -23,8 +36,7 @@ Color::Color(int alpha, int red, int green, int blue)
 }
 Color::Color(const string &opacity, const string &rgb)
 {
-    this->alpha = opacity.empty() ? 255 : static_cast<int>(255 * stof(opacity));
-    if (!rgb.empty())
+    if (rgb.find("rgb(") != string::npos)
     {
         istringstream color_stream(rgb);
         string vessel;
@@ -32,13 +44,21 @@ Color::Color(const string &opacity, const string &rgb)
         color_stream >> this->red >> this->green >> this->blue;
     }
     else
-    {
-        this->red = 0;
-        this->green = 0;
-        this->blue = 0;
-    }
+        *this = Color(rgb);
+    this->alpha = opacity.empty() ? 255 : static_cast<int>(255 * stof(opacity));
 }
 
+void Color::hex_to_rgb(const string &hex_color)
+{
+    string vessel = (hex_color[0] == '#') ? hex_color.substr(1) : hex_color;
+    if (vessel.length() < 6)
+        vessel = string(2, vessel[0]) + string(2, vessel[1]) + string(2, vessel[2]);
+
+    istringstream(vessel.substr(0, 2)) >> hex >> this->red;
+    istringstream(vessel.substr(2, 2)) >> hex >> this->green;
+    istringstream(vessel.substr(4, 2)) >> hex >> this->blue;
+    this->alpha = 255;
+}
 unordered_map<string, string> named_colors = {
     {"aliceblue", "rgb(240 248 255)"},
     {"antiquewhite", "rgb(250 235 215)"},
@@ -188,21 +208,12 @@ unordered_map<string, string> named_colors = {
     {"yellow", "rgb(255 255 0)"},
     {"yellowgreen", "rgb(154 205 50)"},
 };
-
-void Color::hex_to_rgb(const string &hex_color)
-{
-    string vessel = (hex_color[0] == '#') ? hex_color.substr(1) : hex_color;
-    if (vessel.length() < 6)
-        vessel = string(2, vessel[0]) + string(2, vessel[1]) + string(2, vessel[2]);
-
-    istringstream(vessel.substr(0, 2)) >> hex >> this->red;
-    istringstream(vessel.substr(2, 2)) >> hex >> this->green;
-    istringstream(vessel.substr(4, 2)) >> hex >> this->blue;
-}
 Color::Color(const string &named_color)
 {
     if (named_color[0] == '#')
         this->hex_to_rgb(named_color);
+    else if (named_color.find("url(#") != string::npos)
+        *this = Color(-1, -1, -1);
     else
     {
         auto vessel = named_colors.find(named_color);
@@ -229,8 +240,11 @@ Color::Color(const string &type, unordered_map<string, string> &attributes)
         *this = Color(0, 0, 0);
         this->alpha = attributes.find(type + "-opacity") != attributes.end() ? static_cast<int>(255 * stof(attributes[type + "-opacity"])) : 255;
     }
-    this->alpha = min(max(this->alpha, 0), 255);
-    this->red = min(max(this->red, 0), 255);
-    this->green = min(max(this->green, 0), 255);
-    this->blue = min(max(this->blue, 0), 255);
+    if (*this != Color(-1, -1, -1))
+    {
+        this->alpha = min(max(this->alpha, 0), 255);
+        this->red = min(max(this->red, 0), 255);
+        this->green = min(max(this->green, 0), 255);
+        this->blue = min(max(this->blue, 0), 255);
+    }
 }
